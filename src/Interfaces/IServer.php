@@ -9,7 +9,8 @@ use Uniondrug\Framework\Container;
 use Uniondrug\Server2\Console;
 
 /**
- * IServer
+ * IServer/HTTP服务接口
+ * @link    https://wiki.swoole.com/wiki/page/p-server.html
  * @package Uniondrug\Server2\Interfaces
  */
 interface IServer
@@ -63,6 +64,13 @@ interface IServer
     public function getWorkerPid();
 
     /**
+     * 设置进程名称
+     * @param string $name
+     * @return $this
+     */
+    public function setProcessName(string $name);
+
+    /**
      * 运行Process进程
      * @param string $class
      * @param array  $params
@@ -79,11 +87,12 @@ interface IServer
     public function runTask(string $class, array $params = []);
 
     /**
-     * 设置进程名称
-     * @param string $name
+     * @param      $data
+     * @param int  $dstWorkerId
+     * @param null $callback
      * @return mixed
      */
-    public function setProcessName(string $name);
+    public function task($data, $dstWorkerId = -1, $callback = null);
 
     /**
      * 设置定时器

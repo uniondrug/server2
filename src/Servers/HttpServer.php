@@ -19,7 +19,6 @@ use Uniondrug\Server2\Servers\Traits\EventsTrait;
  */
 abstract class HttpServer extends swoole_http_server implements IServer
 {
-    const SERVER_SHARED_NAME = 'server';
     const SERVER_DEFAULT_HOST = '0.0.0.0';
     const SERVER_DEFAULT_PORT = 8080;
     /**
@@ -53,18 +52,18 @@ abstract class HttpServer extends swoole_http_server implements IServer
          * 创建实例
          */
         $iserver = new static($host, $port, $mode, $sock);
-        $iserver->appName = $name;
-        $iserver->address = "{$host}:{$port}";
-        $iserver->container = $container;
-        $iserver->console = new Console();
-        $iserver->console->debug("[服务地址] {$iserver->address}");
+        $iserver->setAppName($name);
+        $iserver->setAddress("{$host}:{$port}");
+        $iserver->setContainer($container);
+        $iserver->setConsole(new Console());
+        $iserver->getConsole()->debug("[服务地址] {$iserver->address}");
         /**
          * instance configurations
          */
         if (is_array($conf)) {
             $iserver->set($conf);
             foreach ($conf as $key => $value) {
-                $iserver->console->debug("[配置参数] 字段'{$key}'分配'{$value}'值");
+                $iserver->getConsole()->debug("[配置参数] 字段'{$key}'分配'{$value}'值");
             }
         }
         /**
@@ -77,9 +76,9 @@ abstract class HttpServer extends swoole_http_server implements IServer
                     $iserver,
                     $eventMethod
                 ]);
-                $iserver->console->debug("[绑定事件] 事件'{$event}'绑定到'{$eventMethod}'方法");
+                $iserver->getConsole()->debug("[绑定事件] 事件'{$event}'绑定到'{$eventMethod}'方法");
             } else {
-                $iserver->console->warning("[无效事件] 方法'{$eventMethod}'未定义, 事件'{$event}'被忽略");
+                $iserver->getConsole()->warning("[无效事件] 方法'{$eventMethod}'未定义, 事件'{$event}'被忽略");
             }
         }
         return $iserver;

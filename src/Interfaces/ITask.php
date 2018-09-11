@@ -5,6 +5,10 @@
  */
 namespace Uniondrug\Server2\Interfaces;
 
+/**
+ * ITask/任务接口
+ * @package Uniondrug\Server2\Interfaces
+ */
 interface ITask
 {
     /**

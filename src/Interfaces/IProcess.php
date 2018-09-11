@@ -8,7 +8,8 @@ namespace Uniondrug\Server2\Interfaces;
 use Uniondrug\Server2\Exception;
 
 /**
- * IProcess
+ * IProcess/同步进程接口
+ * @link https://wiki.swoole.com/wiki/page/p-process.html
  * @package Uniondrug\Server2\Interfaces
  */
 interface IProcess
