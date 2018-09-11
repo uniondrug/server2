@@ -68,5 +68,8 @@ class Console extends ConsoleOutput
         } catch(Throwable $e) {
         }
         $this->writeln("[{$timeline}][{$level}] {$message}");
+
+
+
     }
 }
