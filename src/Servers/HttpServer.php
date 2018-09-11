@@ -53,7 +53,7 @@ abstract class HttpServer extends swoole_http_server implements IServer
          * 创建实例
          */
         $iserver = new static($host, $port, $mode, $sock);
-        $iserver->appName = $name;
+        $iserver->appName = substr($container->environment(), 0, 1).'.'.$name;
         $iserver->address = "{$host}:{$port}";
         $iserver->container = $container;
         $iserver->console = new Console();
