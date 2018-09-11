@@ -5,6 +5,11 @@
  */
 namespace Uniondrug\Server2\Interfaces;
 
+/**
+ * ITable/内存表接口
+ * @link https://wiki.swoole.com/wiki/page/p-table.html
+ * @package Uniondrug\Server2\Interfaces
+ */
 interface ITable
 {
 }

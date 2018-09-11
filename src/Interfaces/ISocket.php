@@ -6,7 +6,8 @@
 namespace Uniondrug\Server2\Interfaces;
 
 /**
- * ISocket
+ * ISocket/WebSocket服务器接口
+ * @link https://wiki.swoole.com/wiki/page/397.html
  * @package Uniondrug\Server2\Interfaces
  */
 interface ISocket extends IServer

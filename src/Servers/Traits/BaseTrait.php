@@ -22,28 +22,28 @@ trait BaseTrait
      * 例如: 127.0.0.1:8080
      * @var string
      */
-    public $address;
+    private $address;
     /**
      * 应用名称
      * @var string
      */
-    public $appName;
+    private $appName;
     /**
      * Phalcon注入容器
      * @var Container
      */
-    public $container;
+    private $container;
     /**
      * 控制吧实例
      * @var Console
      */
-    public $console;
+    private $console;
     /**
      * 默认TaskWorker编号
      * 执行task/pipe依赖
      * @var int
      */
-    public static $defaultTaskWorkerId = 0;
+    private static $defaultTaskWorkerId = 0;
 
     /**
      * 读取应用名称
@@ -118,6 +118,90 @@ trait BaseTrait
     }
 
     /**
+     * 设置服务地址
+     * @param string $address
+     * @return $this
+     */
+    public function setAddress(string $address)
+    {
+        $this->address = $address;
+        return $this;
+    }
+
+    /**
+     * 设置应用名称
+     * @param string $name
+     * @return $this
+     */
+    public function setAppName(string $name)
+    {
+        $this->appName = $name;
+        return $this;
+    }
+
+    /**
+     * 设置控制吧对象
+     * @param Console $console
+     * @return $this
+     */
+    public function setConsole(Console $console)
+    {
+        $this->console = $console;
+        return $this;
+    }
+
+    /**
+     * 设置框架容器
+     * @param Container $container
+     * @return $this
+     */
+    public function setContainer(Container $container)
+    {
+        $this->container = $container;
+        return $this;
+    }
+
+    /**
+     * 修改进程名称
+     * 在部分系统(如: MAC)中不生效
+     * @param string $name
+     * @return $this
+     */
+    public function setProcessName(string $name)
+    {
+        $fns = [
+            'swoole_set_process_name',
+            'cli_set_process_title',
+            'setproctitle',
+        ];
+        foreach ($fns as $fn) {
+            if (!function_exists($fn)) {
+                continue;
+            }
+            try {
+                $fn($name);
+                continue;
+            } catch(\Exception $e) {
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * 向指定WebSocket连接发消息
+     * @param int          $fd
+     * @param array|string $data
+     * @param bool         $binary
+     * @param bool         $finish
+     * @return bool
+     */
+    public function push($fd, $data, $binary = false, $finish = true)
+    {
+        $data = is_string($data) ? $data : json_encode($data, JSON_UNESCAPED_UNICODE);
+        return parent::push($fd, $data, $binary, $finish);
+    }
+
+    /**
      * 运行一个Process子进程
      * @param string $class  IProgress/类名称
      * @param array  $params IProgress执行前, 调用configure()方法设为配置参数
@@ -162,30 +246,6 @@ trait BaseTrait
             'class' => $class,
             'params' => $params
         ], self::$defaultTaskWorkerId);
-    }
-
-    /**
-     * 修改进程名称
-     * 在部分系统(如: MAC)中不生效
-     * @param string $name
-     */
-    public function setProcessName(string $name)
-    {
-        $fns = [
-            'swoole_set_process_name',
-            'cli_set_process_title',
-            'setproctitle',
-        ];
-        foreach ($fns as $fn) {
-            if (!function_exists($fn)) {
-                continue;
-            }
-            try {
-                $fn($name);
-                continue;
-            } catch(\Exception $e) {
-            }
-        }
     }
 
     /**

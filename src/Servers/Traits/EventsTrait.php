@@ -119,11 +119,11 @@ trait EventsTrait
             return;
         }
         if (is_a($data['class'], ITask::class, true)) {
-            $this->task($data, self::$defaultTaskWorkerId);
+            $server->task($data, self::$defaultTaskWorkerId);
             return;
         }
         if (is_a($data['class'], IProcess::class, true)) {
-            $this->runProcess($data['class'], $data['params']);
+            $server->runProcess($data['class'], $data['params']);
             return;
         }
     }
