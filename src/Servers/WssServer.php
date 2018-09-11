@@ -67,7 +67,7 @@ abstract class WssServer extends swoole_websocket_server implements ISocket
          * 创建实例
          */
         $iserver = new static($host, $port, $mode, $sock);
-        $iserver->appName = substr($container->environment(), 0, 1).'.'.$name;
+        $iserver->appName = $name;
         $iserver->address = "{$host}:{$port}";
         $iserver->container = $container;
         $iserver->console = new Console();
