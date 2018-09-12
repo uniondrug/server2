@@ -8,19 +8,28 @@ namespace Uniondrug\Server2;
 use swoole_process;
 use Uniondrug\Server2\Interfaces\IProcess;
 use Uniondrug\Server2\Interfaces\IServer;
+use Uniondrug\Server2\Interfaces\ISocket;
 
 /**
- * Process
+ * Process基类
  * @package Uniondrug\Server2
  */
 abstract class Process extends swoole_process implements IProcess
 {
+    /**
+     * 配置项
+     * @var array
+     */
     private $confirations = [];
+    /**
+     * 进程名称
+     * @var string
+     */
     protected $processName;
 
     /**
-     * Process constructor.
-     * @param string $name
+     * Process构造
+     * @param string $name 进程名称
      */
     final public function __construct(string $name)
     {
@@ -33,9 +42,9 @@ abstract class Process extends swoole_process implements IProcess
     }
 
     /**
-     * 设置配置项
-     * @param array $data
-     * @return $this
+     * 在Process进程中, 设置其配置参数
+     * @param array $data KV键值对
+     * @return mixed
      * @throws Exception
      */
     public function configure(array $data)
@@ -48,7 +57,7 @@ abstract class Process extends swoole_process implements IProcess
     }
 
     /**
-     * 读取配置项
+     * 从配置项中读取指定配置
      * @param string $key
      * @return mixed
      * @throws Exception
@@ -62,11 +71,23 @@ abstract class Process extends swoole_process implements IProcess
     }
 
     /**
-     * 读取IServer实例
-     * @return IServer
+     * 读取共享的Server实例
+     * @return IServer|ISocket
      */
     public function getServer()
     {
         return $this->getConfig('server');
+    }
+
+    /**
+     * 设置配置项
+     * @param string $key
+     * @param mixed  $value
+     * @return $this
+     */
+    public function setConfig(string $key, $value)
+    {
+        $this->confirations[$key] = $value;
+        return $this;
     }
 }

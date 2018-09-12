@@ -16,14 +16,14 @@ use Uniondrug\Server2\Interfaces\ITable;
 abstract class Table extends SwooleTable implements ITable
 {
     /**
-     * columns of table
+     * 内存表字段
      * @var array
      */
     public $columns = [];
 
     /**
-     * setup memory table
-     * @param int $size
+     * 初始化内存表
+     * @param int $size 最大记录数
      * @return static
      * @throws Exception
      */

@@ -43,7 +43,7 @@ trait BaseTrait
      * 执行task/pipe依赖
      * @var int
      */
-    private static $defaultTaskWorkerId = 0;
+    private static $defaultTaskWorkerId = -1;
 
     /**
      * 读取应用名称
@@ -193,12 +193,20 @@ trait BaseTrait
      * @param array|string $data
      * @param bool         $binary
      * @param bool         $finish
-     * @return bool
+     * @return true|string
      */
     public function push($fd, $data, $binary = false, $finish = true)
     {
-        $data = is_string($data) ? $data : json_encode($data, JSON_UNESCAPED_UNICODE);
-        return parent::push($fd, $data, $binary, $finish);
+        try {
+            $data = is_string($data) ? $data : json_encode($data, JSON_UNESCAPED_UNICODE);
+            $done = parent::push($fd, $data);
+            if ($done === true) {
+                return true;
+            }
+            throw new \Exception("unknown");
+        } catch(Throwable $e) {
+            return $e->getMessage();
+        }
     }
 
     /**

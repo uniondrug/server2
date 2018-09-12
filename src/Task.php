@@ -6,6 +6,7 @@
 namespace Uniondrug\Server2;
 
 use Uniondrug\Server2\Interfaces\IServer;
+use Uniondrug\Server2\Interfaces\ISocket;
 use Uniondrug\Server2\Interfaces\ITask;
 
 /**
@@ -15,17 +16,36 @@ use Uniondrug\Server2\Interfaces\ITask;
 abstract class Task implements ITask
 {
     /**
-     * @var IServer
+     * Server实例
+     * @var IServer|ISocket
      */
     private $server;
 
+    /**
+     * 任务构造
+     * @param IServer|ISocket $server
+     */
     final public function __construct(IServer $server)
     {
         $this->server = $server;
     }
 
     /**
-     * @return IServer
+     * 任务执行前置
+     * @param int $srcWorkerId 从哪个worker触发
+     * @param int $workerId    交由哪个worker运行
+     * @param int $taskId      任务ID
+     * @return bool
+     */
+    public function beforeRun(int $srcWorkerId, int $workerId, int $taskId)
+    {
+        $this->getServer()->getConsole()->warning("[".get_class($this)."][%d] 由[Worker #%d]调度到[Worker #%d]", $taskId, $srcWorkerId, $workerId);
+        return true;
+    }
+
+    /**
+     * 读取共享的Server实例
+     * @return IServer|ISocket
      */
     public function getServer()
     {

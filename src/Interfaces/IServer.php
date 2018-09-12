@@ -9,7 +9,7 @@ use Uniondrug\Framework\Container;
 use Uniondrug\Server2\Console;
 
 /**
- * IServer/HTTP服务接口
+ * IServer
  * @link    https://wiki.swoole.com/wiki/page/p-server.html
  * @package Uniondrug\Server2\Interfaces
  */
