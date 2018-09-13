@@ -21,6 +21,12 @@ abstract class Task implements ITask
      */
     private $server;
 
+    protected $taskId;
+    protected $workerId;
+    protected $srcWorkerId;
+    protected $loggerPrefix;
+
+
     /**
      * 任务构造
      * @param IServer|ISocket $server
@@ -39,7 +45,13 @@ abstract class Task implements ITask
      */
     public function beforeRun(int $srcWorkerId, int $workerId, int $taskId)
     {
-        $this->getServer()->getConsole()->warning("[".get_class($this)."][%d] 由[Worker #%d]调度到[Worker #%d]", $taskId, $srcWorkerId, $workerId);
+        // 1. set properties value
+        $this->taskId = $taskId;
+        $this->workerId = $workerId;
+        $this->srcWorkerId = $srcWorkerId;
+        $this->loggerPrefix = "[{$this->getServer()->getAddress()} ".get_class($this)."][task:{$this->taskId}][worker:{$this->workerId}]";
+        // 2. prepare log
+        $this->getServer()->getConsole()->debug("%s task prepared, dispatched from no.{$this->srcWorkerId} worker", $this->loggerPrefix);
         return true;
     }
 
