@@ -10,6 +10,7 @@ use Uniondrug\Framework\Container;
 use Uniondrug\Server2\Console;
 use Uniondrug\Server2\Exception;
 use Uniondrug\Server2\Interfaces\IProcess;
+use Uniondrug\Structs\StructInterface;
 
 /**
  * 公共逻辑
@@ -190,22 +191,33 @@ trait BaseTrait
 
     /**
      * 向指定WebSocket连接发消息
-     * @param int          $fd
-     * @param array|string $data
-     * @param bool         $binary
-     * @param bool         $finish
+     * @param int                          $fd
+     * @param array|string|StructInterface $data
+     * @param bool                         $binary
+     * @param bool                         $finish
      * @return true|string
      */
     public function push($fd, $data, $binary = false, $finish = true)
     {
+        // 1. generate message contents
+        $contents = '{}';
+        if ($data instanceof StructInterface){
+            $contents = $data->toJson();
+        } else if (is_array($data)){
+            $contents = json_encode($data, JSON_UNESCAPED_UNICODE);
+        } else if (is_string($data) || is_numeric($data)){
+            $contents = (string) $data;
+        }
         try {
-            $data = is_string($data) ? $data : json_encode($data, JSON_UNESCAPED_UNICODE);
-            $done = parent::push($fd, $data);
+            // 2. send to client
+            $done = parent::push($fd, $contents);
             if ($done === true) {
                 return true;
             }
+            // 3. send failure
             throw new \Exception("unknown");
         } catch(Throwable $e) {
+            // 4. return error message
             return $e->getMessage();
         }
     }
