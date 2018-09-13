@@ -12,12 +12,22 @@ namespace Uniondrug\Server2\Interfaces;
 interface ITask
 {
     /**
-     * @return IServer
+     * 任务执行前置
+     * @param int $srcWorkerId 从哪个worker触发
+     * @param int $workerId    交由哪个worker运行
+     * @param int $taskId      任务ID
+     * @return bool
+     */
+    public function beforeRun(int $srcWorkerId, int $workerId, int $taskId);
+
+    /**
+     * 读取共享的Server实例
+     * @return IServer|ISocket
      */
     public function getServer();
 
     /**
-     * run task progress
+     * 运行Task任务
      * @param array $data
      */
     public function run(array $data);

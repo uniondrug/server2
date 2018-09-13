@@ -18,7 +18,7 @@ interface ISocket extends IServer
      * @param array|string $data
      * @param bool         $binary
      * @param bool         $finish
-     * @return bool
+     * @return true|string
      */
     public function push($fd, $data, $binary = false, $finish = true);
 }

@@ -201,7 +201,9 @@ trait EventsTrait
          */
         try {
             $itask = new $data['class']($server);
-            $itask->run($data['params']);
+            if (false !== $itask->beforeRun($srcWorkerId, $this->worker_id, $taskId)){
+                $itask->run($data['params']);
+            }
         } catch(Throwable $e) {
             $server->getConsole()->error("[任务进程][%d] 任务[%s]执行失败 - %s", $taskId, $data['class'], $e->getMessage()."\n".$e->getTraceAsString());
         }

@@ -5,6 +5,10 @@
  */
 namespace Uniondrug\Server2;
 
+/**
+ * Server异常
+ * @package Uniondrug\Server2
+ */
 class Exception extends \Exception
 {
 }
