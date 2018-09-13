@@ -44,6 +44,7 @@ trait BaseTrait
      * @var int
      */
     private static $defaultTaskWorkerId = -1;
+    private static $defaultPipeWorkerId = 0;
 
     /**
      * 读取应用名称
@@ -266,10 +267,13 @@ trait BaseTrait
      */
     public function task($data, $dstWorkerId = -1, $callback = null)
     {
-        try {
-            return parent::task($data, $dstWorkerId, $callback) !== false;
-        } catch(Throwable $e) {
-            return $this->sendMessage(json_encode($data), $dstWorkerId);
+        $isWorker = isset($this->taskworker) && $this->taskworker === false;
+        if ($isWorker) {
+            try {
+                return parent::task($data, $dstWorkerId, $callback) !== false;
+            } catch(Throwable $e) {
+            }
         }
+        return $this->sendMessage(json_encode($data), self::$defaultPipeWorkerId);
     }
 }

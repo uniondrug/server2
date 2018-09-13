@@ -20,12 +20,10 @@ abstract class Task implements ITask
      * @var IServer|ISocket
      */
     private $server;
-
     protected $taskId;
     protected $workerId;
     protected $srcWorkerId;
     protected $loggerPrefix;
-
 
     /**
      * 任务构造
@@ -51,7 +49,7 @@ abstract class Task implements ITask
         $this->srcWorkerId = $srcWorkerId;
         $this->loggerPrefix = "[{$this->getServer()->getAddress()} ".get_class($this)."][task:{$this->taskId}][worker:{$this->workerId}]";
         // 2. prepare log
-        $this->getServer()->getConsole()->debug("%s task prepared, dispatched from no.{$this->srcWorkerId} worker", $this->loggerPrefix);
+        $this->getServer()->getConsole()->debug("%s 任务由[Worker:{$this->srcWorkerId}]调度, 准备执行...", $this->loggerPrefix);
         return true;
     }
 
