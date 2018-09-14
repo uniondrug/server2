@@ -23,7 +23,6 @@ abstract class Task implements ITask
     protected $taskId;
     protected $workerId;
     protected $srcWorkerId;
-    protected $loggerPrefix;
 
     /**
      * 任务构造
@@ -47,9 +46,8 @@ abstract class Task implements ITask
         $this->taskId = $taskId;
         $this->workerId = $workerId;
         $this->srcWorkerId = $srcWorkerId;
-        $this->loggerPrefix = "[{$this->getServer()->getAddress()} ".get_class($this)."][task:{$this->taskId}][worker:{$this->workerId}]";
         // 2. prepare log
-        $this->getServer()->getConsole()->debug("%s 任务由[Worker:{$this->srcWorkerId}]调度, 准备执行...", $this->loggerPrefix);
+        $this->getServer()->getConsole()->debug("[task:ready] no %d task fired by no.%d worker and run in no.%d worker, ready.", $taskId, $srcWorkerId, $workerId);
         return true;
     }
 

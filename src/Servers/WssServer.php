@@ -70,15 +70,15 @@ abstract class WssServer extends swoole_websocket_server implements ISocket
         $iserver->setAppName($name);
         $iserver->setAddress("{$host}:{$port}");
         $iserver->setContainer($container);
-        $iserver->setConsole(new Console());
-        $iserver->getConsole()->debug("[服务地址] {$iserver->address}");
+        $iserver->setConsole(new Console($iserver, "{$host}:{$port}"));
+        $iserver->getConsole()->debug("[server:address] {$iserver->address}");
         /**
          * instance configurations
          */
         if (is_array($conf)) {
             $iserver->set($conf);
             foreach ($conf as $key => $value) {
-                $iserver->getConsole()->debug("[配置参数] 字段'{$key}'分配'{$value}'值");
+                $iserver->getConsole()->debug("[server:config] set '{$key}' value as '{$value}'");
             }
         }
         /**
@@ -91,9 +91,9 @@ abstract class WssServer extends swoole_websocket_server implements ISocket
                     $iserver,
                     $eventMethod
                 ]);
-                $iserver->getConsole()->debug("[绑定事件] 事件'{$event}'绑定到'{$eventMethod}'方法");
+                $iserver->getConsole()->debug("[server:event] bind '{$event}' event on '{$eventMethod}' method");
             } else {
-                $iserver->getConsole()->warning("[无效事件] 方法'{$eventMethod}'未定义, 事件'{$event}'被忽略");
+                $iserver->getConsole()->warning("[server:error] undefined '{$eventMethod}' method for '{$event}' event");
             }
         }
         return $iserver;
