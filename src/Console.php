@@ -6,7 +6,10 @@
 namespace Uniondrug\Server2;
 
 use Phalcon\Di;
+use Phalcon\Logger\Adapter;
+use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Throwable;
 use Uniondrug\Framework\Container;
 
 /**
@@ -19,6 +22,16 @@ class Console extends ConsoleOutput
     const LEVEL_ERROR = 'ERROR';
     const LEVEL_INFO = 'INFO';
     const LEVEL_WARNING = 'WARNING';
+    /**
+     * @var Adapter
+     */
+    private $logger;
+
+    public function __construct($verbosity = self::VERBOSITY_NORMAL, $decorated = null, $formatter = null)
+    {
+        parent::__construct($verbosity, $decorated, $formatter);
+        $this->logger = Di::getDefault()->getLogger('server');
+    }
 
     /**
      * @param string $message
@@ -26,7 +39,9 @@ class Console extends ConsoleOutput
      */
     public function debug(string $message, ... $args)
     {
-        $this->render(self::LEVEL_DEBUG, $message, ... $args);
+        $message = $this->formatContents($message, ... $args);
+        $this->logger->debug($message);
+        $this->printConsole(self::LEVEL_DEBUG, $message);
     }
 
     /**
@@ -35,7 +50,9 @@ class Console extends ConsoleOutput
      */
     public function error(string $message, ... $args)
     {
-        $this->render(self::LEVEL_ERROR, $message, ... $args);
+        $message = $this->formatContents($message, ... $args);
+        $this->logger->error($message);
+        $this->printConsole(self::LEVEL_ERROR, $message);
     }
 
     /**
@@ -44,7 +61,9 @@ class Console extends ConsoleOutput
      */
     public function info(string $message, ... $args)
     {
-        $this->render(self::LEVEL_INFO, $message, ... $args);
+        $message = $this->formatContents($message, ... $args);
+        $this->logger->info($message);
+        $this->printConsole(self::LEVEL_INFO, $message);
     }
 
     /**
@@ -53,38 +72,35 @@ class Console extends ConsoleOutput
      */
     public function warning(string $message, ... $args)
     {
-        $this->render(self::LEVEL_WARNING, $message, ... $args);
+        $message = $this->formatContents($message, ... $args);
+        $this->logger->warning($message);
+        $this->printConsole(self::LEVEL_WARNING, $message);
     }
 
     /**
-     * @param string $level
+     * 计算Log内容
      * @param string $message
      * @param array  ...$args
+     * @return string
      */
-    private function render(string $level, string $message, ... $args)
+    private function formatContents(string $message, ... $args)
     {
-        // 1. generate contents
-        if (is_array($args) && count($args)) {
-            $message = call_user_func_array('sprintf', array_merge([$message], $args));
+        if (count($args) > 0) {
+            try {
+                return (string) call_user_func_array('sprintf', array_merge([$message], $args));
+            } catch(Throwable $e) {
+            }
         }
-        // 2. generate formatter
-        $message = "[".date('r')."][{$level}] ${message}";
-        // 3. write in console
-        $this->writeln($message);
-        // 4. write to file
-        $this->writeLogger($level, $message);
+        return $message;
     }
 
     /**
-     * write contents to log file
-     * @param string $message
+     * 打印控制台内容
+     * @param string $level
+     * @param string $contents
      */
-    private function writeLogger($level, & $message)
+    private function printConsole(string $level, string $contents)
     {
-        /**
-         * @var Container $di
-         */
-        $di = Di::getDefault();
-        $di->getLogger('server')->log($level, $message);
+        $this->writeln("[{$level}]".$contents);
     }
 }
