@@ -6,11 +6,12 @@
 namespace Uniondrug\Server2;
 
 use Phalcon\Di;
-use Phalcon\Logger\Adapter;
-use Symfony\Component\Console\Formatter\OutputFormatterInterface;
+use Phalcon\Logger\AdapterInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Throwable;
 use Uniondrug\Framework\Container;
+use Uniondrug\Server2\Interfaces\IServer;
+use Uniondrug\Server2\Interfaces\ISocket;
 
 /**
  * console
@@ -23,14 +24,29 @@ class Console extends ConsoleOutput
     const LEVEL_INFO = 'INFO';
     const LEVEL_WARNING = 'WARNING';
     /**
-     * @var Adapter
+     * @var string
+     */
+    private $address;
+    /**
+     * @var AdapterInterface
      */
     private $logger;
+    /**
+     * @var ISocket|IServer
+     */
+    private $server;
 
-    public function __construct($verbosity = self::VERBOSITY_NORMAL, $decorated = null, $formatter = null)
+    public function __construct($server, $address)
     {
-        parent::__construct($verbosity, $decorated, $formatter);
-        $this->logger = Di::getDefault()->getLogger('server');
+        parent::__construct();
+        $this->server = $server;
+        $this->address = $address;
+        /**
+         * Dependence Injectable
+         * @var Container $container
+         */
+        $container = Di::getDefault();
+        $this->logger = $container->getLogger('server');
     }
 
     /**
@@ -85,13 +101,14 @@ class Console extends ConsoleOutput
      */
     private function formatContents(string $message, ... $args)
     {
+        $prefix = '['.$this->address.']';
         if (count($args) > 0) {
             try {
-                return (string) call_user_func_array('sprintf', array_merge([$message], $args));
+                return $prefix.call_user_func_array('sprintf', array_merge([$message], $args));
             } catch(Throwable $e) {
             }
         }
-        return $message;
+        return $prefix.$message;
     }
 
     /**
@@ -101,6 +118,6 @@ class Console extends ConsoleOutput
      */
     private function printConsole(string $level, string $contents)
     {
-        $this->writeln("[{$level}]".$contents);
+        $this->writeln("[{$level}] ".$contents);
     }
 }

@@ -231,7 +231,7 @@ trait BaseTrait
     public function runProcess(string $class, array $params = [])
     {
         if (!is_a($class, IProcess::class, true)) {
-            $this->console->error("[无效进程] PHP类'%s'未实现'%s'接口", $class, IProcess::class);
+            $this->console->error("[process:error] class %s not implmented %s interface.", $class, IProcess::class);
             return false;
         }
         try {
@@ -247,9 +247,9 @@ trait BaseTrait
             if ($pid > 0) {
                 return $pid;
             }
-            throw new Exception("进程ID无效");
+            throw new Exception("start failure");
         } catch(Throwable $e) {
-            $this->console->error("[执行进程] 执行'%s'进程失败 - %s", $class, $e->getMessage());
+            $this->console->error("[process:failure] can not run '%s' process - %s.", $class, $e->getMessage());
         }
         return false;
     }
