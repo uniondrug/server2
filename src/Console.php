@@ -5,8 +5,9 @@
  */
 namespace Uniondrug\Server2;
 
+use Phalcon\Di;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use Throwable;
+use Uniondrug\Framework\Container;
 
 /**
  * console
@@ -62,14 +63,28 @@ class Console extends ConsoleOutput
      */
     private function render(string $level, string $message, ... $args)
     {
-        $timeline = date('r');
-        try {
-            $message = count($args) > 0 ? call_user_func_array('sprintf', array_merge([$message], $args)) : $message;
-        } catch(Throwable $e) {
+        // 1. generate contents
+        if (is_array($args) && count($args)) {
+            $message = call_user_func_array('sprintf', array_merge([$message], $args));
         }
-        $this->writeln("[{$timeline}][{$level}] {$message}");
+        // 2. generate formatter
+        $message = "[".date('r')."][{$level}] ${message}";
+        // 3. write in console
+        $this->writeln($message);
+        // 4. write to file
+        $this->writeLogger($level, $message);
+    }
 
-
-
+    /**
+     * write contents to log file
+     * @param string $message
+     */
+    private function writeLogger($level, & $message)
+    {
+        /**
+         * @var Container $di
+         */
+        $di = Di::getDefault();
+        $di->getLogger('server')->log($level, $message);
     }
 }
