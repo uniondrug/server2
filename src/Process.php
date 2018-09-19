@@ -53,7 +53,7 @@ abstract class Process extends swoole_process implements IProcess
             $this->confirations = $data;
             return $this;
         }
-        throw new Exception("process: configuration must be array");
+        throw new Exception("[".get_class($this)."]配置必须为数组");
     }
 
     /**
@@ -67,7 +67,7 @@ abstract class Process extends swoole_process implements IProcess
         if (isset($this->confirations[$key])) {
             return $this->confirations[$key];
         }
-        throw new Exception("process: undefined {$key} configuration");
+        throw new Exception("[".get_class($this)."]未定义[{$key}]配置选项");
     }
 
     /**

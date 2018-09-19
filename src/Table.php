@@ -39,6 +39,6 @@ abstract class Table extends SwooleTable implements ITable
             }
         } catch(Throwable $e) {
         }
-        throw new Exception("TABLE: create memory table failure");
+        throw new Exception("创建内存表[".get_class($table)."]失败");
     }
 }

@@ -47,7 +47,7 @@ abstract class Task implements ITask
         $this->workerId = $workerId;
         $this->srcWorkerId = $srcWorkerId;
         // 2. prepare log
-        $this->getServer()->getConsole()->debug("[task:ready] no %d task fired by no.%d worker and run in no.%d worker, ready.", $taskId, $srcWorkerId, $workerId);
+        $this->getServer()->getConsole()->debug("[task:ready][%s] 第%d号任务准备执行, 由%d号Worker进程触发, 并在%d号Worker中执行.", get_class($this), $taskId, $srcWorkerId, $workerId);
         return true;
     }
 

@@ -20,7 +20,7 @@ class MysqlTask extends Task
      */
     public function run(array $data)
     {
-        $this->getServer()->getConsole()->debug("[task:run][%s] refresh %s connection", __CLASS__, "MySQL");
+        $this->getServer()->getConsole()->debug("[task:run][%s] 刷新%s连接", __CLASS__, "MySQL");
         // 1. no shared db instance
         $this->checkInstance('db');
     }
@@ -38,9 +38,11 @@ class MysqlTask extends Task
         $db = $this->getServer()->getContainer()->get($name);
         try {
             $db->query("SELECT 1");
+            return true;
         } catch(\Exception $e) {
             $this->getServer()->getContainer()->remove($db);
-            $this->getServer()->getConsole()->error("[task:failure] refresh %s connection failure - %s.", __CLASS__, "MySQL");
+            $this->getServer()->getConsole()->error("[task:failure][%s] 刷新%s失败 - %s.", __CLASS__, "MySQL", $e->getMessage());
+            return false;
         }
     }
 }

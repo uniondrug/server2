@@ -50,20 +50,21 @@ abstract class HttpServer extends swoole_http_server implements IServer
         }
         /**
          * 创建实例
+         * @var IServer $iserver
          */
         $iserver = new static($host, $port, $mode, $sock);
         $iserver->setAppName($name);
         $iserver->setAddress("{$host}:{$port}");
         $iserver->setContainer($container);
         $iserver->setConsole(new Console($iserver, "{$host}:{$port}"));
-        $iserver->getConsole()->debug("[server:begin] {$iserver->address}");
+        $iserver->getConsole()->debug("[server:address] 监听[%s]地址", $iserver->address);
         /**
          * instance configurations
          */
         if (is_array($conf)) {
             $iserver->set($conf);
             foreach ($conf as $key => $value) {
-                $iserver->getConsole()->debug("[server:config] set '{$key}' value as '{$value}'");
+                $iserver->getConsole()->debug("[server:config] 配置[%s]字段值为[%s]", $key, $value);
             }
         }
         /**
@@ -76,9 +77,9 @@ abstract class HttpServer extends swoole_http_server implements IServer
                     $iserver,
                     $eventMethod
                 ]);
-                $iserver->getConsole()->debug("[server:event] bind '{$event}' event on '{$eventMethod}' method");
+                $iserver->getConsole()->debug("[server:event] 绑定[%s]事件到[%s]方法", $event, $eventMethod);
             } else {
-                $iserver->getConsole()->warning("[server:error] undefined '{$eventMethod}' method for '{$event}' event");
+                $iserver->getConsole()->error("[server:error] 事件[%s]未定义[%s]方法", $event, $eventMethod);
             }
         }
         return $iserver;

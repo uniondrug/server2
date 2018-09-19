@@ -13,6 +13,10 @@ namespace Uniondrug\Server2\Interfaces;
 interface ISocket extends IServer
 {
     /**
+     * @return []
+     */
+    public function getConnections();
+    /**
      * 向指定WebSocket连接发消息
      * @param int          $fd
      * @param array|string $data

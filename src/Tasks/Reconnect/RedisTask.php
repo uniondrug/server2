@@ -19,6 +19,6 @@ class RedisTask extends Task
      */
     public function run(array $data)
     {
-        $this->getServer()->getConsole()->debug("[task:run][%s] refresh %s connection", __CLASS__,  "Redis");
+        $this->getServer()->getConsole()->debug("[task:run][%s] 刷新%s连接", __CLASS__,  "Redis");
     }
 }

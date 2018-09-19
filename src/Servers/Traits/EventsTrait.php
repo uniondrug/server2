@@ -67,7 +67,7 @@ trait EventsTrait
     {
         $name = $server->getAppName()." manager ";
         $server->setProcessName($name);
-        $server->getConsole()->debug("[manager:start] process name is %s and process id is %d.", $name, $server->getManagerPid());
+        $server->getConsole()->debug("[manager:start] Manager进程启动, 进程名[%s], 进程ID[%d].", $name, $server->getManagerPid());
     }
 
     /**
@@ -77,7 +77,7 @@ trait EventsTrait
      */
     public function onManagerStop(IServer $server)
     {
-        $server->getConsole()->debug("[manager:stop] process name is %s and process id is %d.", $server->getAppName()." manager", $server->getManagerPid());
+        $server->getConsole()->debug("[manager:stop] Manager进程退出, 进程名[%s], 进程ID[%d].", $server->getAppName()." manager", $server->getManagerPid());
     }
 
     /**
@@ -111,20 +111,20 @@ trait EventsTrait
     {
         $data = json_decode($message, true);
         if (!is_array($data)) {
-            $server->getConsole()->error("[pipe:error] pipe message from no.%d worker is not json string - %s.", $srcWorkerId, $message);
+            $server->getConsole()->error("[pipe:error] 限JSON格式消息");
             return;
         }
         if (!isset($data['class'])) {
-            $server->getConsole()->error("[pipe:error] pipe message from no.%d worker has not class field  %s", $srcWorkerId, $message);
+            $server->getConsole()->error("[pipe:error] JSON消息未定义[class]字段");
             return;
         }
         if (is_a($data['class'], ITask::class, true)) {
-            $server->getConsole()->debug("[pipe:task] pipe message from no.%d worker fire %s task", $srcWorkerId, $data['class']);
+            $server->getConsole()->debug("[pipe:task] 由[%d]号Worker触发[%s]Task", $srcWorkerId, $data['class']);
             $server->task($data, self::$defaultTaskWorkerId);
             return;
         }
         if (is_a($data['class'], IProcess::class, true)) {
-            $server->getConsole()->debug("[pipe:process] pipe message from no.%d worker fire %s process", $srcWorkerId, $data['class']);
+            $server->getConsole()->debug("[pipe:process] 由[%d]号Worker触发[%s]Process", $srcWorkerId, $data['class']);
             $server->runProcess($data['class'], $data['params']);
             return;
         }
@@ -160,7 +160,7 @@ trait EventsTrait
     public function onShutdown(IServer $server)
     {
         $name = $server->getAppName()." master";
-        $server->getConsole()->debug("[server:shutdown] server process name is %s and process id is %d.", $name, $server->getMasterPid());
+        $server->getConsole()->debug("[server:shutdown] 服务停止, 进程名[%s], 进程ID[%d].", $name, $server->getMasterPid());
     }
 
     /**
@@ -172,7 +172,7 @@ trait EventsTrait
     {
         $name = $server->getAppName()." master";
         $server->setProcessName($name);
-        $server->getConsole()->debug("[server:start] server process name is %s and process id is %d.", $name, $server->getMasterPid());
+        $server->getConsole()->debug("[server:start] 服务启动, 进程名[%s], 进程ID[%d].", $name, $server->getMasterPid());
     }
 
     /**
@@ -193,8 +193,9 @@ trait EventsTrait
      */
     final public function onTask(IServer $server, int $taskId, int $srcWorkerId, $data)
     {
+        // 1. 入能检查
         if (!is_array($data) || !isset($data['class'])) {
-            $server->getConsole()->error("[task:error] no.%d task only accept array param.", $taskId);
+            $server->getConsole()->error("[task:error] 仅接受数组参数.", $taskId);
             return;
         }
         $data['params'] = isset($data['params']) && is_array($data['params']) ? $data['params'] : [];
@@ -203,11 +204,14 @@ trait EventsTrait
          */
         try {
             $itask = new $data['class']($server);
-            if (false !== $itask->beforeRun($srcWorkerId, $this->worker_id, $taskId)) {
+            if (false === $itask->beforeRun($srcWorkerId, $this->worker_id, $taskId)) {
+                $server->getConsole()->debug("[task:failure][%s] 忽略执行", $data['class']);
+            } else {
                 $itask->run($data['params']);
+                $server->getConsole()->debug("[task:success][%s] 执行完成", $data['class']);
             }
         } catch(Throwable $e) {
-            $server->getConsole()->error("[task:failure] no.%d task %s run failure for %s.", $taskId, $data['class'], $e->getMessage());
+            $server->getConsole()->error("[task:failure][%s] 执行失败 - %s.", $data['class'], $e->getMessage());
         }
     }
 
@@ -221,7 +225,7 @@ trait EventsTrait
     {
         $name = $server->getAppName()." worker ".$workerId;
         $server->setProcessName($name);
-        $server->getConsole()->debug("[worker:start] no.%d worker started, which process name is %s and process id is %d.", $workerId, $name, $server->getWorkerPid());
+        $server->getConsole()->debug("[worker:start] 第%d号Worker启动, 进程名[%s], 进程ID[%d].", $workerId, $name, $server->getWorkerPid());
     }
 
     /**
@@ -232,6 +236,6 @@ trait EventsTrait
      */
     public function onWorkerStop(IServer $server, int $workerId)
     {
-        $server->getConsole()->debug("[worker:stoped] no.%d worker stoped, which process name is %s and process id is %d.", $workerId, $server->getAppName()." worker {$workerId}", $server->getWorkerPid());
+        $server->getConsole()->debug("[worker:stoped] 第%d号Worker停止, 进程名[%s], 进程ID[%d].", $workerId, $server->getAppName()." worker {$workerId}", $server->getWorkerPid());
     }
 }

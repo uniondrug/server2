@@ -66,6 +66,15 @@ trait BaseTrait
     }
 
     /**
+     * 连接列表
+     * @return \Swoole\Connection\Iterator
+     */
+    public function getConnections()
+    {
+        return $this->connections;
+    }
+
+    /**
      * 读取控制台实例
      * @return Console
      */
@@ -201,11 +210,11 @@ trait BaseTrait
     {
         // 1. generate message contents
         $contents = '{}';
-        if ($data instanceof StructInterface){
+        if ($data instanceof StructInterface) {
             $contents = $data->toJson();
-        } else if (is_array($data)){
+        } else if (is_array($data)) {
             $contents = json_encode($data, JSON_UNESCAPED_UNICODE);
-        } else if (is_string($data) || is_numeric($data)){
+        } else if (is_string($data) || is_numeric($data)) {
             $contents = (string) $data;
         }
         try {
@@ -231,7 +240,7 @@ trait BaseTrait
     public function runProcess(string $class, array $params = [])
     {
         if (!is_a($class, IProcess::class, true)) {
-            $this->console->error("[process:error] class %s not implmented %s interface.", $class, IProcess::class);
+            $this->console->error("[process:error][%s] 未实现%s接口.", $class, IProcess::class);
             return false;
         }
         try {
@@ -249,7 +258,7 @@ trait BaseTrait
             }
             throw new Exception("start failure");
         } catch(Throwable $e) {
-            $this->console->error("[process:failure] can not run '%s' process - %s.", $class, $e->getMessage());
+            $this->console->error("[process:failure][%s] 启动失败 - %s.", $class, $e->getMessage());
         }
         return false;
     }
