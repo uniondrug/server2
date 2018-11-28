@@ -8,6 +8,7 @@ namespace Uniondrug\Server2\Base;
 use Swoole\Http\Server as SwooleHttp;
 use Uniondrug\Server2\Base\Traits\Common;
 use Uniondrug\Server2\Base\Traits\Construct;
+use Uniondrug\Server2\Base\Traits\Process;
 use Uniondrug\Server2\Base\Traits\Properties;
 use Uniondrug\Server2\Base\Traits\Task;
 use Uniondrug\Server2\Base\Events\CloseEvent;
@@ -29,7 +30,7 @@ use Uniondrug\Server2\Base\Events\Http\RequestEvent;
 abstract class Http extends SwooleHttp implements IHttp
 {
     public $events = ['request'];
-    use Properties, Construct, Common, Task;
+    use Properties, Construct, Common, Task, Process;
     /**
      * 进程事件
      */

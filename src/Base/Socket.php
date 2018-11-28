@@ -8,6 +8,7 @@ namespace Uniondrug\Server2\Base;
 use Swoole\Websocket\Server as SwooleWebSocket;
 use Uniondrug\Server2\Base\Traits\Common;
 use Uniondrug\Server2\Base\Traits\Construct;
+use Uniondrug\Server2\Base\Traits\Process;
 use Uniondrug\Server2\Base\Traits\Task;
 use Uniondrug\Server2\Base\Traits\Properties;
 use Uniondrug\Server2\Base\Events\CloseEvent;
@@ -37,7 +38,7 @@ abstract class Socket extends SwooleWebSocket implements ISocket
         'message',
         'request',
     ];
-    use Properties, Construct, Common, Task;
+    use Properties, Construct, Common, Task, Process;
     /**
      * 进程事件
      */

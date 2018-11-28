@@ -5,8 +5,6 @@
  */
 namespace Uniondrug\Server2\Servers\Phalcon;
 
-use Uniondrug\Server2\Servers\Phalcon\Traits\MysqlTrait;
-use Uniondrug\Server2\Servers\Phalcon\Traits\RedisTrait;
 use Uniondrug\Server2\Tasks\Task;
 
 /**
@@ -15,15 +13,16 @@ use Uniondrug\Server2\Tasks\Task;
  */
 abstract class PhalconTask extends Task
 {
-    use MysqlTrait, RedisTrait;
+    /**
+     * @var PhalconHttp
+     */
+    public $server;
 
-    public function beforeRun()
+    /**
+     * @return PhalconHttp
+     */
+    public function getServer()
     {
-        $result = parent::beforeRun();
-        if ($result === true) {
-            $this->loadMysqlConnection($this->server);
-            $this->loadRedisConnection($this->server);
-        }
-        return $result;
+        return $this->server;
     }
 }

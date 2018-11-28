@@ -11,7 +11,8 @@ use Uniondrug\Server2\Clients\Client;
 error_reporting(E_ALL);
 date_default_timezone_set('Asia/Shanghai');
 // 1. vendor
-$basePath = realpath(__DIR__.'/../../../');
+//$basePath = realpath(__DIR__.'/../../../');
+$basePath = getcwd();
 include "{$basePath}/vendor/autoload.php";
 // 2. console & error
 $console = new Console();

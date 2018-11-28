@@ -66,7 +66,7 @@ trait TaskEvent
     {
         // 1. 收到任务/记数器+1
         $server->getPidTable()->incr($server->getWorkerPid(), 'onTask', 1);
-        $server->getConsole()->debug("[@%d.%d][task.begin]第{%d}号任务开始执行", $this->getWorkerPid(), $this->getWorkerId(), $taskId);
+        $server->getConsole()->debug("[@%d.%d][task=%d]事件onTask已触发", $this->getWorkerPid(), $this->getWorkerId(), $taskId);
         try {
             // 2. 执行过程
             $begin = microtime(true);
@@ -87,11 +87,11 @@ trait TaskEvent
             }
             // 4. 任务完成
             $duration = sprintf("%.06f", microtime(true) - $begin);
-            $server->getConsole()->debug("[@%d.%d][task.success]第{%d}号任务用时%f秒执行完成 - %s", $this->getWorkerPid(), $this->getWorkerId(), $taskId, $duration, $result);
+            $server->getConsole()->debug("[@%d.%d][task=%d]共用时{%f}秒完成 - %s", $this->getWorkerPid(), $this->getWorkerId(), $taskId, $duration, $result);
         } catch(\Throwable $e) {
             // n. 执行失败
             $result = $e->getMessage();
-            $server->getConsole()->error("[@%d.%d][task.failure]第{%d}号任务执行失败 - %s", $this->getWorkerPid(), $this->getWorkerId(), $taskId, $result);
+            $server->getConsole()->error("[@%d.%d][task=%d]任务执行失败 - %s", $this->getWorkerPid(), $this->getWorkerId(), $taskId, $result);
         }
         // m. 完成任务/记数器+1
         $server->getPidTable()->incr($server->getWorkerPid(), 'onFinish', 1);
@@ -114,12 +114,12 @@ trait TaskEvent
         // 2. 投递失败
         if ($taskId === false) {
             /** @noinspection PhpUndefinedMethodInspection */
-            $this->console->error("[@%d.%d][task:reject]投递任务到任务池失败 - %s", $this->worker_pid, $this->worker_id, $data);
+            $this->console->error("[@%d.%d][task=reject]投递任务到任务池失败 - %s", $this->worker_pid, $this->worker_id, $data);
             return false;
         }
         // 3. 投递成功
         /** @noinspection PhpUndefinedMethodInspection */
-        $this->console->debug("[@%d.%d][task.pushed]投递{%d}号任务到任务池 - %s", $this->worker_pid, $this->worker_id, $taskId, $data);
+        $this->console->debug("[@%d.%d][task=%d]投递到任务池", $this->worker_pid, $this->worker_id, $taskId);
         return $taskId;
     }
 }

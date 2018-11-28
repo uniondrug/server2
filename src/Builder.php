@@ -65,6 +65,8 @@ class Builder
     private $setting = [];
     private $managerAddress = "";
     private $managerHost = "127.0.0.1";
+    private $startMode = SWOOLE_PROCESS;
+    private $startSockType = SWOOLE_SOCK_TCP;
 
     /**
      * Builder constructor.
@@ -182,6 +184,16 @@ class Builder
     public function getSetting()
     {
         return $this->setting;
+    }
+
+    public function getStartMode()
+    {
+        return $this->startMode;
+    }
+
+    public function getStartSockType()
+    {
+        return $this->startSockType;
     }
 
     /**

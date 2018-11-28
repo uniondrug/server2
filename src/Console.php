@@ -85,6 +85,11 @@ class Console
         $this->stdout(self::LEVEL_WARN, $text, ... $args);
     }
 
+    public function warning($text, ... $args)
+    {
+        $this->warn($text, ... $args);
+    }
+
     /**
      * Console绑定Phalcon容器
      * @param Container $container

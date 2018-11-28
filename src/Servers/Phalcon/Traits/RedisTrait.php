@@ -5,8 +5,8 @@
  */
 namespace Uniondrug\Server2\Servers\Phalcon\Traits;
 
-use Uniondrug\Framework\Container;
-use Uniondrug\Server2\Servers\Phalcon\PhalconHttp;
+//use Uniondrug\Framework\Container;
+//use Uniondrug\Server2\Servers\Phalcon\PhalconHttp;
 
 /**
  * 刷新Redis连接
@@ -14,12 +14,12 @@ use Uniondrug\Server2\Servers\Phalcon\PhalconHttp;
  */
 trait RedisTrait
 {
-    /**
-     * 载入Redis连接
-     * @param PhalconHttp $server
-     * @param Container   $container
-     */
-    public function loadRedisConnection($server, $container)
-    {
-    }
+//    /**
+//     * 载入Redis连接
+//     * @param PhalconHttp $server
+//     * @param Container   $container
+//     */
+//    public function loadRedisConnection($server, $container)
+//    {
+//    }
 }

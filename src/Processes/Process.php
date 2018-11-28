@@ -66,6 +66,14 @@ abstract class Process extends SwooleProcess implements IProcess
     abstract public function run();
 
     /**
+     * @return IHttp|ISocket
+     */
+    public function getServer()
+    {
+        return $this->server;
+    }
+
+    /**
      * 执行过程
      * @return void
      */
@@ -100,7 +108,7 @@ abstract class Process extends SwooleProcess implements IProcess
     final public function signalRegister()
     {
         $signals = array_keys($this->signals);
-        $this->server->getConsole()->debug("[@%d]进程{%s}注册{%s}信息量", $this->pid, $this->processName, implode(',', $signals));
+        $this->server->getConsole()->debug("[@%d]进程{%s}注册{%s}信号量", $this->pid, $this->processName, implode(',', $signals));
         foreach ($signals as $signal) {
             process::signal($signal, [
                 $this,

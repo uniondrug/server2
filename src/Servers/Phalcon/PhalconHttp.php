@@ -12,12 +12,7 @@ use Phalcon\Http\Response as PhalconResponse;
 use Uniondrug\Framework\Request as PhalconRequest;
 use Uniondrug\Framework\Application;
 use Uniondrug\Framework\Container;
-use Uniondrug\Server2\Base\IHttp;
-use Uniondrug\Server2\Base\ISocket;
 use Uniondrug\Server2\Servers\Http;
-use Uniondrug\Server2\Servers\Phalcon\Traits\FrameworkTrait;
-use Uniondrug\Server2\Servers\Phalcon\Traits\RedisTrait;
-use Uniondrug\Server2\Servers\Phalcon\Traits\MysqlTrait;
 
 /**
  * 基于Phalcon的应用迁移至Swoole默认入口
@@ -32,15 +27,19 @@ class PhalconHttp extends Http
      */
     const CONNECTION_RELOAD_FREQUENCE = 15000;
     /**
+     * Phalcon应用实例
      * @var Application
      */
-    public $application;
+    private $application;
     /**
+     * Phalcon容器实例
      * @var Container
      */
-    public $container;
-    use FrameworkTrait, RedisTrait, MysqlTrait;
-
+    private $container;
+    /**
+     * 方法复用
+     */
+    //    use FrameworkTrait, RedisTrait, MysqlTrait;
     /**
      * 收到HTTP请求
      * @param SwooleRequest  $swooleRequest
@@ -157,23 +156,33 @@ class PhalconHttp extends Http
     }
 
     /**
-     * Worker进程启动
-     * @param IHttp|ISocket $server
-     * @param int           $workerId
+     * 读取配置
+     * @return \Phalcon\Config
      */
-    public function doWorkerStart($server, $workerId)
+    public function getConfig()
     {
-        parent::doWorkerStart($server, $workerId);
-        $this->loadFramework($this);
-        swoole_timer_tick(self::CONNECTION_RELOAD_FREQUENCE, [
-            $this,
-            'doWorkerStartTick'
-        ]);
+        return $this->getContainer()->getConfig();
     }
 
-    public function doWorkerStartTick()
+    /**
+     * 读取容器
+     * @return Container
+     */
+    public function getContainer()
     {
-        $this->loadMysqlConnection($this, $this->container);
-        $this->loadRedisConnection($this, $this->container);
+        // 1. once
+        if ($this->container !== null) {
+            return $this->container;
+        }
+        // 2. create
+        $this->console->info("[@%d.%d]初始化{%s}容器", $this->getWorkerPid(), $this->getWorkerId(), Container::class);
+        // 2.1. container
+        $this->container = new Container($this->builder->getBasePath());
+        $this->application = new Application($this->container);
+        $this->application->boot();
+        // 2.2. shared
+        $this->container->setShared('server', $this);
+        $this->console->setContainer($this->container);
+        return $this->container;
     }
 }

@@ -19,17 +19,17 @@ abstract class Task implements ITask
      * Task所在Tasker进程
      * @var IHttp|ISocket
      */
-    protected $server;
+    public $server;
     /**
      * Task源数据
      * @var array $data 任务参数
      */
-    protected $data;
+    public $data;
     /**
      * 任务ID
      * @var int
      */
-    protected $taskId;
+    public $taskId;
 
     /**
      * @param IHttp|ISocket $server Tasker对象

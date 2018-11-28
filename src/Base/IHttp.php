@@ -75,6 +75,14 @@ interface IHttp
     public function isTasker();
 
     /**
+     * 启到一个Process进程
+     * @param string $class
+     * @param array  $params
+     * @return mixed
+     */
+    public function runProcess(string $class, array $params = []);
+
+    /**
      * 发送异步Task任务
      * @param string $class
      * @param array  $params
