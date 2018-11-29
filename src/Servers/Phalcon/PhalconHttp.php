@@ -188,7 +188,6 @@ class PhalconHttp extends Http
         $this->application->boot();
         // 2.2. shared
         $this->container->setShared('server', $this);
-        $this->console->setContainer($this->container);
         // 3.3. connection
         $this->tick(self::CONNECTION_RELOAD_FREQUENCE, [
             $this,

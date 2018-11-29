@@ -5,6 +5,7 @@
  */
 namespace Uniondrug\Server2;
 
+use Phalcon\Di;
 use Uniondrug\Framework\Container;
 use Uniondrug\Server2\Base\IHttp;
 use Uniondrug\Server2\Base\ISocket;
@@ -34,16 +35,7 @@ class Console
      * @var string|null
      */
     private $prefix = null;
-    /**
-     * Phalcon支持
-     * @var Container
-     */
-    private $container;
-    /**
-     * Server实例
-     * @var IHttp|ISocket
-     */
-    private $server;
+    private $serverDate;
 
     /**
      * 输出Debug信息
@@ -88,28 +80,6 @@ class Console
     public function warning($text, ... $args)
     {
         $this->warn($text, ... $args);
-    }
-
-    /**
-     * Console绑定Phalcon容器
-     * @param Container $container
-     * @return $this
-     */
-    public function setContainer(Container $container)
-    {
-        $this->container = $container;
-        return $this;
-    }
-
-    /**
-     * Console绑定Server实例
-     * @param IHttp|ISocket $server
-     * @return $this
-     */
-    public function setServer($server)
-    {
-        $this->server = $server;
-        return $this;
     }
 
     /**
@@ -313,7 +283,11 @@ class Console
         // 2. 前缀
         $this->prefix === null || $text = "[{$this->prefix}]{$text}";
         // 3. 级别附加
-        isset(self::$levels[$level]) && $text = "[".self::$levels[$level]."]{$text}";
+        if ($this->saveLogger($level, $text)) {
+            return;
+        }
+        $type = isset(self::$levels[$level]) ? self::$levels[$level] : "NULL";
+        $text = "[".$type."]{$text}";
         // 4. 附加时间
         $t = new \DateTime();
         $s = $t->format('Y-m-d H:i:s.u O');
@@ -339,5 +313,47 @@ class Console
     private function stdwidth($text)
     {
         return strlen($text);
+    }
+
+    /**
+     * 容器支持
+     * @param        $level
+     * @param string $text
+     * @return bool
+     */
+    private function saveLogger($level, string & $text)
+    {
+        /**
+         * @var Container $container
+         */
+        $container = Di::getDefault();
+        if (!($container instanceof Container)) {
+            return false;
+        }
+
+        $date = (int) date('Ymd');
+        if ($this->serverDate !== $date) {
+            $this->serverDate = $date;
+            $container->removeSharedInstance('logger');
+        }
+        $logger = $container->getLogger('server');
+        switch ($level) {
+            case self::LEVEL_ERROR :
+                $logger->error($text);
+                break;
+            case self::LEVEL_WARN :
+                $logger->warning($text);
+                break;
+            case self::LEVEL_INFO :
+                $logger->info($text);
+                break;
+            case self::LEVEL_DEBUG :
+                $logger->debug($text);
+                break;
+            default :
+                return false;
+                break;
+        }
+        return true;
     }
 }
