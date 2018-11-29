@@ -5,8 +5,6 @@
  */
 namespace Uniondrug\Server2\Base\Traits;
 
-use Uniondrug\Server2\Processes\Process;
-
 /**
  * 公共方法
  * @package Uniondrug\Server2\Agent\Traits
@@ -30,16 +28,16 @@ trait Task
         if (isset($this->worker_pid) && $this->worker_pid > 0) {
             // 2.1 worker:worker
             if (!$this->taskworker) {
-                $this->console->debug("[@%d.%d][task=call]发送{%s}任务", $this->getWorkerPid(), $this->getWorkerId(), $class);
+                $this->console->debug("[@%d.%d][task=call]Call{%s}Task", $this->getWorkerPid(), $this->getWorkerId(), $class);
                 return $this->runTaskInWorker($message);
             }
             // 2.2 worker:tasker
-            $this->console->debug("[@%d.%d][task=call]发送{%s}任务", $this->getWorkerPid(), $this->getWorkerId(), $class);
+            $this->console->debug("[@%d.%d][task=call]Call{%s}Task", $this->getWorkerPid(), $this->getWorkerId(), $class);
             return $this->runTaskInTasker($message);
         }
         // 3. process
-        $pid = isset($this->pid) ? $this->pid : 'n';
-        $this->console->debug("[@%s][task=call]发送{%s}任务", $pid, $class);
+        $pid = function_exists('posix_getpid') ? posix_getpid() : 'n';
+        $this->console->debug("[@%s][task=call]Call{%s}Task", $pid, $class);
         return $this->runTaskInTasker($message);
     }
 

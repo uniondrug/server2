@@ -30,7 +30,7 @@ trait ShutdownEvent
     {
         $name = $server->genPidName("master");
         $server->getPidTable()->del($server->getMasterPid());
-        $server->getConsole()->warn("[@%d]master进程{%s}退出", $server->getMasterPid(), $name);
+        $server->getConsole()->warn("[@%d]Master{%s}Quit", $server->getMasterPid(), $name);
         $this->doShutdown($server);
     }
 }

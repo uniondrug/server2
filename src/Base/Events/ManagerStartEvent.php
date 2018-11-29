@@ -31,7 +31,7 @@ trait ManagerStartEvent
         $name = $server->genPidName("manager");
         $server->setPidName($name);
         $server->getPidTable()->addManager($server->getManagerPid(), $name);
-        $server->getConsole()->debug("[@%d]manager进程{%s}启动", $server->getManagerPid(), $name);
+        $server->getConsole()->info("[@%d]Manager{%s}Started", $server->getManagerPid(), $name);
         $this->doManagerStart($server);
     }
 }

@@ -31,7 +31,7 @@ trait StartEvent
         $name = $server->genPidName("master");
         $server->setPidName($name);
         $server->getPidTable()->addMaster($server->getMasterPid(), $name);
-        $server->getConsole()->debug("[@%d]master进程{%s}启动", $server->getMasterPid(), $name);
+        $server->getConsole()->info("[@%d]Master{%s}Started", $server->getMasterPid(), $name);
         $this->doStart($server);
     }
 }

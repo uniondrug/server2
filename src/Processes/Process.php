@@ -26,6 +26,11 @@ abstract class Process extends SwooleProcess implements IProcess
      */
     public $server;
     /**
+     * Process入参
+     * @var array
+     */
+    public $data;
+    /**
      * 信号量定义
      * @var array
      */
@@ -33,20 +38,22 @@ abstract class Process extends SwooleProcess implements IProcess
         SIGTERM => ['signalQuit'],
         SIGKILL => ['signalQuit'],
         SIGUSR1 => null,
-        SIGUSR2 => null
+        SIGUSR2 => null,
+        SIGCHLD => null
     ];
 
     /**
      * Process constructor.
      * @param callable $server
      */
-    public function __construct($server)
+    public function __construct($server, array $data = [])
     {
         parent::__construct([
             $this,
             'runProcess'
         ], false, true);
         $this->server = $server;
+        $this->data = $data;
         $this->processName = sprintf("%s.process.%s", $this->server->getBuilder()->getName(), get_called_class());
     }
 
@@ -83,7 +90,7 @@ abstract class Process extends SwooleProcess implements IProcess
         $this->beforeRun();
         // 1. process info
         $this->server->getPidTable()->addProcess($this->pid, $this->processName);
-        $this->server->getConsole()->debug("[@%d]进程{%s}启动", $this->pid, $this->processName);
+        $this->server->getConsole()->info("[@%d]Process{%s}Started", $this->pid, get_called_class());
         // 2. run process
         $this->server->setPidName($this->processName);
         $this->run();
@@ -97,7 +104,7 @@ abstract class Process extends SwooleProcess implements IProcess
     final public function signalQuit($signal = 0)
     {
         $this->server->getPidTable()->del($this->pid);
-        $this->server->getConsole()->warn("[@%d]进程{%s}退出", $this->pid, $this->processName);
+        $this->server->getConsole()->warn("[@%d]Process{%s}Quit", $this->pid, get_called_class());
         $this->exit($signal);
     }
 
@@ -108,7 +115,7 @@ abstract class Process extends SwooleProcess implements IProcess
     final public function signalRegister()
     {
         $signals = array_keys($this->signals);
-        $this->server->getConsole()->debug("[@%d]进程{%s}注册{%s}信号量", $this->pid, $this->processName, implode(',', $signals));
+        $this->server->getConsole()->debug("[@%d]Process{%s}Register{%s}Signal", $this->pid, get_called_class(), implode(',', $signals));
         foreach ($signals as $signal) {
             process::signal($signal, [
                 $this,
@@ -124,13 +131,13 @@ abstract class Process extends SwooleProcess implements IProcess
      */
     final public function signalTriggered($signal = 0)
     {
-        $this->server->getConsole()->debug("[@%d]进程{%s}收到{%d}信号量", $this->pid, $this->processName, $signal);
+        $this->server->getConsole()->debug("[@%d]Process{%s}Receive{%d}Signal", $this->pid, $this->processName, $signal);
         if (isset($this->signals[$signal]) && is_array($this->signals[$signal])) {
             foreach ($this->signals[$signal] as $call) {
                 try {
                     $this->{$call}($signal);
                 } catch(\Throwable $e) {
-                    $this->server->getConsole()->error("[@%d]进程{%s}接受{%d}信号量触发{%s}失败 - %s", $this->pid, $this->processName, $signal, $call, $e->getMessage());
+                    $this->server->getConsole()->error("[@%d]Process{%s}Accept{%d}Signal{%s}Fail - %s", $this->pid, get_called_class(), $signal, $call, $e->getMessage());
                 }
             }
         }

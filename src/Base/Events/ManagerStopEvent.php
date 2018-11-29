@@ -30,7 +30,7 @@ trait ManagerStopEvent
     {
         $name = $server->genPidName("manager");
         $server->getPidTable()->del($server->getManagerPid());
-        $server->getConsole()->warn("[@%d]manager进程{%s}退出", $server->getManagerPid(), $name);
+        $server->getConsole()->warn("[@%d]Manager{%s}Quit", $server->getManagerPid(), $name);
         $this->doManagerStop($server);
     }
 }

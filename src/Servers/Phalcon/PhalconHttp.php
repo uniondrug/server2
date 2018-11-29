@@ -5,6 +5,7 @@
  */
 namespace Uniondrug\Server2\Servers\Phalcon;
 
+use Phalcon\Db\Adapter\Pdo\Mysql;
 use Phalcon\Http\CookieInterface;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
@@ -175,7 +176,12 @@ class PhalconHttp extends Http
             return $this->container;
         }
         // 2. create
-        $this->console->info("[@%d.%d]初始化{%s}容器", $this->getWorkerPid(), $this->getWorkerId(), Container::class);
+        if ($this->getWorkerPid() > 0) {
+            $this->console->info("[@%d.%d]Container{%s}Initialized", $this->getWorkerPid(), $this->getWorkerId(), Container::class);
+        } else {
+            $pid = function_exists('posix_getpid') ? posix_getpid() : 0;
+            $this->console->info("[@%d]Container{%s}Initialized", $pid, Container::class);
+        }
         // 2.1. container
         $this->container = new Container($this->builder->getBasePath());
         $this->application = new Application($this->container);
@@ -183,6 +189,35 @@ class PhalconHttp extends Http
         // 2.2. shared
         $this->container->setShared('server', $this);
         $this->console->setContainer($this->container);
+        // 3.3. connection
+        $this->tick(self::CONNECTION_RELOAD_FREQUENCE, [
+            $this,
+            'reloadConnection'
+        ]);
         return $this->container;
+    }
+
+    /**
+     * 刷新MySQL连接
+     */
+    public function reloadConnection()
+    {
+        $dbs = [
+            'db',
+            'dbSlave'
+        ];
+        foreach ($dbs as $db) {
+            /**
+             * MySQL
+             * @var Mysql
+             */
+            $rdb = $this->container->getShared($db);
+            try {
+                $rdb->query("SELECT 1");
+            } catch(\Exception $e) {
+                $this->container->removeSharedInstance($db);
+                $this->console->warn("Fresh{MySQL}Connection - %s", $e->getMessage());
+            }
+        }
     }
 }

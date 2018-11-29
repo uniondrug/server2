@@ -33,11 +33,11 @@ trait TaskEvent
         // 2. 执行类型
         $tasker = isset($data['class']) && is_string($data['class']) ? $data['class'] : null;
         if (!$tasker) {
-            throw new \Exception("未定义任务Handler");
+            throw new \Exception("UnknownHandler");
         }
         // 3. 接口检查
         if (!is_a($tasker, ITask::class, true)) {
-            throw new \Exception("任务{$tasker}未实现".ITask::class."接口");
+            throw new \Exception("Task{{$tasker}}Unimplement{".ITask::class."}Interface");
         }
         /**
          * 4. 执行过程
@@ -47,7 +47,7 @@ trait TaskEvent
         $data['params'] = isset($data['params']) && is_array($data['params']) ? $data['params'] : [];
         $handler = new $tasker($server, $data['params'], $taskId);
         if ($handler->beforeRun() !== true) {
-            throw new \Exception("任务{$tasker}的前置beforeRun()未返回TRUE");
+            throw new \Exception("Task{{$tasker}}Method{beforeRun}Return{false}");
         }
         $result = $handler->run();
         $handler->afterRun($result);
@@ -66,7 +66,7 @@ trait TaskEvent
     {
         // 1. 收到任务/记数器+1
         $server->getPidTable()->incr($server->getWorkerPid(), 'onTask', 1);
-        $server->getConsole()->debug("[@%d.%d][task=%d]事件onTask已触发", $this->getWorkerPid(), $this->getWorkerId(), $taskId);
+        $server->getConsole()->debug("[@%d.%d][task=%d]Event{onTask}Fired", $this->getWorkerPid(), $this->getWorkerId(), $taskId);
         try {
             // 2. 执行过程
             $begin = microtime(true);
@@ -87,11 +87,11 @@ trait TaskEvent
             }
             // 4. 任务完成
             $duration = sprintf("%.06f", microtime(true) - $begin);
-            $server->getConsole()->debug("[@%d.%d][task=%d]共用时{%f}秒完成 - %s", $this->getWorkerPid(), $this->getWorkerId(), $taskId, $duration, $result);
+            $server->getConsole()->debug("[@%d.%d][task=%d]TaskCompletedWith{%f}Seconds - %s", $this->getWorkerPid(), $this->getWorkerId(), $taskId, $duration, $result);
         } catch(\Throwable $e) {
             // n. 执行失败
             $result = $e->getMessage();
-            $server->getConsole()->error("[@%d.%d][task=%d]任务执行失败 - %s", $this->getWorkerPid(), $this->getWorkerId(), $taskId, $result);
+            $server->getConsole()->error("[@%d.%d][task=%d]FailToExecuteTask - %s", $this->getWorkerPid(), $this->getWorkerId(), $taskId, $result);
         }
         // m. 完成任务/记数器+1
         $server->getPidTable()->incr($server->getWorkerPid(), 'onFinish', 1);
@@ -114,12 +114,12 @@ trait TaskEvent
         // 2. 投递失败
         if ($taskId === false) {
             /** @noinspection PhpUndefinedMethodInspection */
-            $this->console->error("[@%d.%d][task=reject]投递任务到任务池失败 - %s", $this->worker_pid, $this->worker_id, $data);
+            $this->console->error("[@%d.%d][task=reject]FailToTaskPool - %s", $this->worker_pid, $this->worker_id, $data);
             return false;
         }
         // 3. 投递成功
         /** @noinspection PhpUndefinedMethodInspection */
-        $this->console->debug("[@%d.%d][task=%d]投递到任务池", $this->worker_pid, $this->worker_id, $taskId);
+        $this->console->debug("[@%d.%d][task=%d]ToTaskPool", $this->worker_pid, $this->worker_id, $taskId);
         return $taskId;
     }
 }

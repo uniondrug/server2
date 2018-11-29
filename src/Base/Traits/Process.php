@@ -19,7 +19,15 @@ trait Process
      */
     public function runProcess(string $class, array $params = [])
     {
-        $this->getConsole()->warn("Start processes {%s}", $class);
+        try {
+            /**
+             * @var \Swoole\Process $process
+             */
+            $process = new $class($this, $params);
+            return $process->start();
+        } catch(\Throwable $e) {
+            $this->getConsole()->error("Process{%s}Error - %s", $class, $e->getMessage());
+        }
         return false;
     }
 }

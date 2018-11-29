@@ -32,7 +32,7 @@ trait FinishEvent
      */
     final public function onFinish($server, int $taskId, string $data)
     {
-        $server->getConsole()->debug("[@%d.%d][task=%d]事件onFinish已触发", $server->getWorkerPid(), $server->getWorkerId(), $taskId);
+        $server->getConsole()->debug("[@%d.%d][task=%d]Event{onFinish}Fired", $server->getWorkerPid(), $server->getWorkerId(), $taskId);
         $this->doFinish($server, $taskId, $data);
     }
 }

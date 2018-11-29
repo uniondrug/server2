@@ -27,7 +27,7 @@ trait Construct
         $this->console->setPrefix($this->builder->getAddress());
         $this->pidTable = PidTable::setup($this->builder->getPidTableSize());
         parent::__construct($this->builder->getHost(), $this->builder->getPort(), $this->builder->getStartMode(), $this->builder->getStartSockType());
-        $this->console->info("服务{%s}初始化启动", $this->builder->getEntrypoint());
+        $this->console->info("Server{%s}Initialized", $this->builder->getEntrypoint());
         $this->initializeSettings();
         $this->initializeEvents();
         $this->initializeProcesses();
@@ -47,12 +47,12 @@ trait Construct
      */
     private function initializeSettings()
     {
-        $this->console->info("服务参数初始化");
         $setting = $this->builder->getSetting();
         $this->builder->isDaemon() && $setting['daemonize'] = 1;
         $this->set($setting);
+        $this->console->info("SettingInitialized");
         foreach ($setting as $key => $value) {
-            $this->console->debug("服务参数{%s}的值为{%s}", $key, $value);
+            $this->console->debug("Setting{%s}AssignTo{%s}", $key, $value);
         }
     }
 
@@ -61,7 +61,7 @@ trait Construct
      */
     private function initializeEvents()
     {
-        $this->console->info("事件绑定初始化");
+        $this->console->info("EventInitialized");
         $events = array_merge($this->events, $this->mergedEvents);
         ksort($events);
         reset($events);
@@ -72,9 +72,9 @@ trait Construct
                     $this,
                     $call
                 ]);
-                $this->console->debug("绑定{%s}事件回调到{%s}方法", $event, $call);
+                $this->console->debug("Event{%s}Bind{%s}Method", $event, $call);
             } else {
-                $this->console->warn("未定义{%s}事件回调方法{%s}", $event, $call);
+                $this->console->warn("Event{%s}Unregister{%s}Method", $event, $call);
             }
         }
     }
@@ -85,7 +85,7 @@ trait Construct
     private function initializeManagers()
     {
         if ($this->builder->getAddress() !== $this->builder->getManagerAddrress()) {
-            $this->console->warn("Manager{%s}启动监听", $this->builder->getManagerAddrress());
+            $this->console->warn("Manager{%s}Listenning", $this->builder->getManagerAddrress());
             $this->addListener($this->builder->getManagerHost(), $this->builder->getManagerPort(), SWOOLE_SOCK_TCP);
         }
     }
@@ -95,15 +95,16 @@ trait Construct
      */
     private function initializeProcesses()
     {
-        $this->console->info("外挂Process进程初始化");
+        $this->console->info("ProcessInitialized");
         $processes = $this->builder->getProcess();
         foreach ($processes as $process) {
             if (is_a($process, IProcess::class, true)) {
                 $this->addProcess(new $process($this));
-                $this->console->debug("Process{%s}加入{%s}服务", $process, $this->builder->getEntrypoint());
+                $this->console->debug("Process{%s}Join{%s}", $process, $this->builder->getEntrypoint());
             } else {
-                $this->console->warn("Process{%s}未实现{%s}接口", $process, IProcess::class);
+                $this->console->warn("Process{%s}Unimplment{%s}Interface", $process, IProcess::class);
             }
+
         }
     }
 }

@@ -51,6 +51,6 @@ class PidProcess extends Process
         }
         // 2. 去除记录
         $this->server->getPidTable()->del($pid);
-        $this->server->getConsole()->warn("[@%d]清理第{%d}号已退出进程{%s}", $this->pid, $pid, $name);
+        $this->server->getConsole()->warn("[@%d]Clear{%d}Process{%s}", $this->pid, $pid, $name);
     }
 }

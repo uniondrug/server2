@@ -33,7 +33,7 @@ trait WorkerStopEvent
         $type = $server->isTasker() ? "tasker" : "worker";
         $name = $server->genPidName($type, $workerId);
         $server->getPidTable()->del($server->getWorkerPid());
-        $server->getConsole()->warn("[@%d.%d]%s进程{%s}退出", $server->getWorkerPid(), $server->getWorkerId(), $type, $name);
+        $server->getConsole()->warn("[@%d.%d]%s{%s}Quit", $server->getWorkerPid(), $server->getWorkerId(), ucfirst($type), $name);
         $this->doWorkerStop($server, $workerId);
     }
 }

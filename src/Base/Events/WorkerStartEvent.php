@@ -34,7 +34,7 @@ trait WorkerStartEvent
         $name = $server->genPidName($type, $workerId);
         $server->setPidName($name);
         $server->getPidTable()->addWorker($server->getWorkerPid(), $name);
-        $server->getConsole()->debug("[@%d.%d]%s进程{%s}启动", $server->getWorkerPid(), $server->getWorkerId(), $type, $name);
+        $server->getConsole()->info("[@%d.%d]%s{%s}Started", $server->getWorkerPid(), $server->getWorkerId(), ucfirst($type), $name);
         $this->doWorkerStart($server, $workerId);
     }
 }
