@@ -1,0 +1,21 @@
+{
+    "name" : "uniondrug/server2",
+    "description" : "http & websocket server on swoole",
+    "license" : "MIT",
+    "type" : "library",
+    "authors" : [
+        {
+            "name" : "Uniondrug Dev Team",
+            "email" : "dev@uniondrug.cn"
+        }
+    ],
+    "require" : {
+        "uniondrug/framework" : "^2.9",
+        "uniondrug/swoole" : "^2.0"
+    },
+    "autoload" : {
+        "psr-4" : {
+            "Uniondrug\\Server2\\" : "src/"
+        }
+    }
+}
