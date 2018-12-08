@@ -58,7 +58,7 @@ trait ConstractTrait
         $sockType || $sockType = SWOOLE_SOCK_TCP;
         $host = $this->builder->getHost();
         $this->console->setPrefix("[{$this->builder->getAddr()}]");
-        $this->console->info("[server=init]初始化{%s}服务", $this->builder->getAppName());
+        $this->console->info("[server=init]初始化{%s/%s}服务", $this->builder->getAppName(), $this->builder->getAppVersion());
         $this->console->debug("入口{%s}实例", $this->builder->getEntrypoint());
         $this->console->debug("运行{%s}环境", $this->builder->getEnvironment());
         $this->console->debug("监听{%s}地址", $this->builder->getAddr());
@@ -210,7 +210,9 @@ trait ConstractTrait
     final public function setPidName(string $name, int $id = null)
     {
         $id === null || $name = "{$name}.{$id}";
-        swoole_set_process_name($name);
+        if (PHP_OS !== "Darwin" && function_exists('swoole_set_process_name')) {
+            swoole_set_process_name($name);
+        }
         return $this;
     }
 
@@ -235,5 +237,11 @@ trait ConstractTrait
         }
         // 3. 启动服务
         parent::start();
+    }
+
+    final public function tick($ms, $callable)
+    {
+        $this->console->debug("设置{%d}秒定时器", $ms / 1000);
+        parent::tick($ms, $callable);
     }
 }

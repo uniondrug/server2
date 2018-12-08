@@ -146,8 +146,11 @@ trait EventsTrait
      */
     final public function onRequest($request, $response)
     {
-        $request->requestId = uniqid('req');
+        $uniqid = uniqid('req');
+        $response->header("Server", $this->builder->getAppName().'/'.$this->builder->getAppVersion());
+        $response->header("RequestId", $uniqid);
         // HTTP请求日志
+        $request->requestId = $uniqid;
         $begin = microtime(true);
         $this->defer(function() use ($request, $response, $begin){
             $this->httpAccessLogger($this, $request, $response, $begin);

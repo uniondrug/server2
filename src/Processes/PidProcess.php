@@ -17,7 +17,7 @@ class PidProcess extends XProcess
     public function run()
     {
         // 1. 每3秒清理一次已退出进程
-        swoole_timer_tick(3000, function(){
+        $this->server->tick(3000, function(){
             $this->removeKilledProcesses();
         });
     }

@@ -5,6 +5,8 @@
  */
 namespace Uniondrug\Server2\Managers;
 
+use Uniondrug\Server2\Tables\ITable;
+
 /**
  * 列出服务状态
  * @package Uniondrug\Server2\Managers
@@ -17,8 +19,18 @@ class StatusManager extends Abstracts\Manager
      */
     public function run()
     {
-        $result = ['stats' => $this->server->stats()];
-        $result['process'] = $this->server->getPidTable()->toArray();
+        $result = [
+            'stats' => $this->server->stats(),
+            'tables' => []
+        ];
+        /**
+         * @var array $tables
+         * @var ITable $table
+         */
+        $tables = $this->server->getTables();
+        foreach ($tables as $name => $table) {
+            $result['tables'][$name] = $table->toArray();
+        }
         return $result;
     }
 }

@@ -59,6 +59,10 @@ trait CommonTrait
         return false;
     }
 
+    public function getTables(){
+        return $this->initedTables;
+    }
+
     /**
      * 读取PID进程表
      * @return PidTable|false

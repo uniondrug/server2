@@ -99,6 +99,7 @@ abstract class XProcess extends SwooleProcess implements IProcess
     {
         $this->server->getConsole()->warning("进程{%s}退出", $this->pidName);
         $this->server->getPidTable()->del($this->pid);
+
         $this->exit($signal);
     }
 

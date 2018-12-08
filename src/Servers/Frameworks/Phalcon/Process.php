@@ -16,7 +16,7 @@ abstract class Process extends XProcess
     /**
      * @var Http
      */
-    public $server;
+    protected $server;
 
     public function beforeRun()
     {

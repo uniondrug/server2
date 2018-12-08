@@ -18,6 +18,7 @@ class Builder
      * @var string
      */
     private $appName;
+    private $appVersion;
     /**
      * 项目根目录
      * @var string
@@ -134,9 +135,13 @@ class Builder
         return $this->appName;
     }
 
+    /**
+     * 应用版本号
+     * @return string
+     */
     public function getAppVersion()
     {
-        return "2.x";
+        return $this->appVersion;
     }
 
     public function getBasePath()
@@ -278,8 +283,9 @@ class Builder
                 }
             }
         }
-        // 2. 读取项目名称
+        // 2. 读取项目名称与版本
         $this->appName = isset($conf['app']['appName']) && $conf['app']['appName'] ? $conf['app']['appName'] : '';
+        $this->appVersion = isset($conf['app']['appVersion']) && $conf['app']['appVersion'] ? $conf['app']['appVersion'] : 'x.x';
         // 3. Entrypoint
         $this->entrypoint = isset($conf['server']['class']) && $conf['server']['class'] ? $conf['server']['class'] : '';
         // 4. Server配置

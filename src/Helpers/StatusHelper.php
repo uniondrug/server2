@@ -22,9 +22,14 @@ class StatusHelper extends Abstracts\Base implements IHelper
             $this->console->debug("服务状态");
             $this->printStats($result['stats']);
         }
-        if (isset($result['process']) && is_array($result['process'])) {
-            $this->console->debug("进程列表");
-            $this->printTable($result['process']);
+
+
+        if (isset($result['tables']) && is_array($result['tables'])) {
+            foreach ($result['tables'] as $name => $data){
+                $this->console->debug("内存{%s}表", $name);
+                $this->printTable($data);
+            }
+
         }
     }
 
