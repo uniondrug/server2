@@ -94,6 +94,11 @@ class Console
         echo sprintf("%s\n", $text);
     }
 
+    public function getPrefix()
+    {
+        return (string) $this->prefix;
+    }
+
     public function setPrefix(string $prefix)
     {
         $this->prefix = $prefix;

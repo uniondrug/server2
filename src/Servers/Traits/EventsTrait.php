@@ -146,9 +146,10 @@ trait EventsTrait
      */
     final public function onRequest($request, $response)
     {
-        $uniqid = uniqid('req');
+        $uniqid = isset($request->header['HTTP_UDSDK_REQID']) ? $request->header['HTTP_UDSDK_REQID'] : null;
+        $uniqid || $uniqid = uniqid('req');
         $response->header("Server", $this->builder->getAppName().'/'.$this->builder->getAppVersion());
-        $response->header("RequestId", $uniqid);
+        $response->header("Udsdk-Reqid", $uniqid);
         // HTTP请求日志
         $request->requestId = $uniqid;
         $begin = microtime(true);

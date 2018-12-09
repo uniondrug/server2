@@ -5,7 +5,7 @@
  */
 namespace Uniondrug\Server2\Servers\Frameworks\Phalcon;
 
-use Phalcon\Http\Response;
+use Phalcon\Http\Response as PhalconResponse;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 use Uniondrug\Framework\Application;
@@ -18,16 +18,6 @@ use Uniondrug\Server2\Servers\XHttp;
  */
 class Http extends XHttp
 {
-    /**
-     * MySQL刷新时长
-     * @var int
-     */
-    public $refreshMysqlSeconds = 5;
-    /**
-     * Redis刷新时长
-     * @var int
-     */
-    public $refreshRedisSeconds = 5;
     /**
      * Phalcon应用
      * @var Application
@@ -58,23 +48,14 @@ class Http extends XHttp
      */
     public function doRequest($request, $response)
     {
-        try {
-            /**
-             * @var Response $resp
-             */
-            $resp = $this->handleRequest($this, $request, $response);
-            if ($resp instanceof Response) {
-                $response->statusCode = $resp->getStatusCode();
-                $response->status($resp->getStatusCode());
-                $response->end($resp->getContent());
-                return;
-            }
-            throw new \Exception("unknown response");
-        } catch(\Throwable $e) {
-            $response->statusCode = 500;
-            $response->status($response->statusCode);
-            $response->end($e->getMessage());
-        }
+        /**
+         * @var PhalconResponse $pr
+         */
+        $pr = $this->handleRequest($this, $request, $response);
+        $response->statusCode = $pr->getStatusCode();
+        $response->statusCode || $response->statusCode = 200;
+        $response->status($response->statusCode);
+        $response->end($pr->getContent());
     }
 
     /**
@@ -84,6 +65,6 @@ class Http extends XHttp
      */
     public function doWorkerStart($server)
     {
-        $this->startFramework($this);
+        $this->startFramework($server);
     }
 }

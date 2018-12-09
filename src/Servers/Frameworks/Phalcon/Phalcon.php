@@ -5,15 +5,15 @@
  */
 namespace Uniondrug\Server2\Servers\Frameworks\Phalcon;
 
-use Phalcon\Http\CookieInterface;
-use Phalcon\Http\Response;
-use Swoole\Http\Request as SwooleRequest;
-use Swoole\Http\Response as SwooleResponse;
 use Phalcon\Db\Adapter\Pdo\Mysql;
+use Phalcon\Http\CookieInterface as PhalconCookie;
 use Uniondrug\Framework\Application;
 use Uniondrug\Framework\Container;
-use Uniondrug\Framework\Request as PhalconRequest;
-use Uniondrug\Service\Server;
+use Swoole\Http\Request as SwooleRequest;
+use Swoole\Http\Response as SwooleResponse;
+use Phalcon\Http\Response as PhalconResponse;
+use Uniondrug\Server2\Servers\Frameworks\Phalcon\Request as PhalconRequest;
+use Uniondrug\Service\Server as ServiceServer;
 
 /**
  * 基于Phalcon的复用
@@ -22,83 +22,80 @@ use Uniondrug\Service\Server;
 trait Phalcon
 {
     /**
-     * 收到HTTP请求
-     * Server收到Http请求时, 转发给
      * @param Http           $server
      * @param SwooleRequest  $swooleRequest
      * @param SwooleResponse $swooleResponse
-     * @return Response
-     * @throws \Exception
+     * @return PhalconResponse
      */
     public function handleRequest($server, $swooleRequest, $swooleResponse)
     {
-        // 1. 未导入Phalcon框架
-        if (!($server->container instanceof Container)) {
-            throw new \Exception("framework not initialized");
-        }
-        // 2. $service
-        $service = $server->container->getShared('serviceServer');
-        if (!($service instanceof Server)) {
-            throw new \Exception("framework initialized failure");
-        }
-        // 3. assets
-        $uri = $swooleRequest->server['request_uri'];
-        if (preg_match("/\.[a-zA-Z0-9]+/", $uri)) {
-            return $service->withError("Forbidden: assets resources ignored");
-        }
-        // 4. init global variables
-        $_GET = $swooleRequest->get;
-        $_POST = $swooleRequest->post;
-        $_COOKIE = $swooleRequest->cookie;
-        $_FILES = $swooleRequest->files;
-        $_SERVER = [];
-        foreach ($swooleRequest->server as $key => $value) {
-            $_SERVER[strtoupper($key)] = $value;
-        }
-        $_SERVER['REQUEST_ID'] = $swooleRequest->requestId;
-        $_SERVER['SERVER_SOFTWARE'] = $server->builder->getAppName()."/".$server->builder->getAppVersion();
         /**
-         * 5. reset phalcon request
+         * 1. initialize
+         * @var ServiceServer  $serviceServer ;
          * @var PhalconRequest $phalconRequest
          */
+        $serviceServer = $server->container->getShared('serviceServer');
         $phalconRequest = $server->container->getShared('request');
-        $phalconRequest->setRawBody($swooleRequest->rawContent());
-        // 6. execute request
-        $phalconResponse = $server->application->handle($uri);
-        if ($phalconResponse instanceof Response) {
-            /**
-             * 7. cookie
-             * @var CookieInterface $cookie
-             */
-            $cookies = $phalconResponse->getCookies();
-            if ($cookies instanceof CookieInterface) {
-                foreach ($cookies as $cookie) {
-                    if ($cookie instanceof CookieInterface) {
-                        $swooleResponse->cookie($cookie->getName(), $cookie->getValue(), $cookie->getExpiration(), $cookie->getPath(), $cookie->getDomain());
-                    }
-                }
+        $phalconRequest->initialize($swooleRequest);
+        // 2. dispatch phalcon controller
+        try {
+            $phalconResponse = $server->application->handle($phalconRequest->getURI());
+            if (!($phalconResponse instanceof PhalconResponse)) {
+                throw new \Exception("unknown response type");
             }
-            /**
-             * 8. header
-             * @var Response\HeadersInterface $headers
-             */
-            $headers = $phalconResponse->getHeaders();
-            if ($headers instanceof Response\HeadersInterface) {
-                foreach ($headers as $key => $value) {
-                    $swooleResponse->header($key, $value);
-                }
-            }
-            // 9. transfer headers
-            return $phalconResponse;
+        } catch(\Throwable $e) {
+            return $serviceServer->withError($e->getMessage(), $e->getCode());
         }
-        return $service->withError("unknown response");
+        // 3. render cookie
+        $cookies = $phalconResponse->getCookies();
+        if ($cookies instanceof PhalconResponse\CookiesInterface) {
+            /**
+             * @var PhalconCookie $cookie
+             */
+            foreach ($cookies as $cookie) {
+                $swooleResponse->cookie($cookie->getName(), $cookie->getValue(), $cookie->getExpiration(), $cookie->getPath(), $cookie->getDomain(), $cookie->getSecure());
+            }
+        }
+        // 4. render header
+        $headers = $phalconResponse->getHeaders();
+        if ($headers instanceof PhalconResponse\HeadersInterface) {
+            foreach ($headers as $key => $value) {
+                $swooleResponse->header($key, $value);
+            }
+        }
+        // 5. completed
+        return $phalconResponse;
     }
 
     /**
-     * 刷新MySQL连接
+     * 载入Phalcon支持
      * @param Http $server
      */
-    public function refreshMysqlConnection($server)
+    public function startFramework($server)
+    {
+        // 1. 已启动
+        if ($server->container !== null && $server->application !== null) {
+            return;
+        }
+        // 2. 初始化Framework
+        $server->getConsole()->error("初始化框架{%s}容器", Container::class);
+        putenv("APP_ENV={$server->builder->getEnvironment()}");
+        $server->container = new Container($server->builder->getBasePath());
+        $server->application = new Application($server->container);
+        $server->application->boot();
+        $server->container->setShared('server', $server);
+        // 3. 覆盖Request
+        $server->container->setShared('request', new Request());
+        // 4. MySQL/Redis健康检查定时器
+        $this->startFrameworkMysqlTimer($server);
+        $this->startFrameworkRedisTimer($server);
+    }
+
+    /**
+     * 检查MySQL连接
+     * @param Http $server
+     */
+    private function startFrameworkMysqlCheck($server)
     {
         // 1. 容器未加载
         if (!($server->container instanceof Container)) {
@@ -140,37 +137,36 @@ trait Phalcon
     }
 
     /**
-     * 刷新Redis连接
+     * 设置MySQL定时刷新
      * @param Http $server
      */
-    public function refreshRedisConnection($server)
+    private function startFrameworkMysqlTimer($server)
+    {
+        $sec = (int) $server->builder->getOption('reconnectMysqlSeconds');
+        $sec || $sec = 10;
+        $server->tick($sec * 1000, function() use ($server){
+            $this->startFrameworkMysqlCheck($server);
+        });
+    }
+
+    /**
+     * 检查Redis连接
+     * @param Http $server
+     */
+    private function startFrameworkRedisCheck($server)
     {
     }
 
     /**
-     * 载入Phalcon支持
+     * 设置Redis定时刷新
      * @param Http $server
      */
-    public function startFramework($server)
+    private function startFrameworkRedisTimer($server)
     {
-        // 1. 已启动
-        if ($server->container !== null && $server->application !== null) {
-            return;
-        }
-        // 2. 初始化Framework
-        $server->getConsole()->error("初始化框架{%s}容器", Container::class);
-        putenv("APP_ENV={$server->builder->getEnvironment()}");
-        $server->container = new Container($server->builder->getBasePath());
-        $server->application = new Application($server->container);
-        $server->application->boot();
-        $server->container->setShared('server', $server);
-        // 3. 定时刷新MySQL连接/防止MysqlGoneAway
-        $server->tick($server->refreshMysqlSeconds * 1000, function() use ($server){
-            $server->refreshMysqlConnection($server);
-        });
-        // 4. 定时刷新Redis连接/防止RedisGoneAway
-        $server->tick($server->refreshRedisSeconds * 1000, function() use ($server){
-            $server->refreshRedisConnection($server);
+        $sec = (int) $server->builder->getOption('reconnectRedisSeconds');
+        $sec || $sec = 10;
+        $server->tick($sec * 1000, function() use ($server){
+            $this->startFrameworkRedisCheck($server);
         });
     }
 }

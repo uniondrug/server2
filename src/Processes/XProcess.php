@@ -93,13 +93,20 @@ abstract class XProcess extends SwooleProcess implements IProcess
     }
 
     /**
+     * 收到子进程退出
+     * @param int $signal
+     */
+    public function signalChild(int $signal)
+    {
+    }
+
+    /**
      * Process主逻辑
      */
     public function signalTerm(int $signal)
     {
         $this->server->getConsole()->warning("进程{%s}退出", $this->pidName);
         $this->server->getPidTable()->del($this->pid);
-
         $this->exit($signal);
     }
 

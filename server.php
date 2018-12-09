@@ -8,6 +8,8 @@ use Uniondrug\Server2\Console;
 use Uniondrug\Server2\Helper;
 
 error_reporting(E_ALL);
+date_default_timezone_set("Asia/Shanghai");
+
 // composer
 $basePath = getcwd();
 $vendorFile = $basePath."/vendor/autoload.php";
