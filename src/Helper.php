@@ -64,7 +64,7 @@ class Helper
      */
     public function getScript()
     {
-        return $this->script;
+        return preg_match("/^\.\//", $this->script) ? $this->script : "php {$this->script}";
     }
 
     /**

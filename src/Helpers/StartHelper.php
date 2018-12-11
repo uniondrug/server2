@@ -14,6 +14,42 @@ use Uniondrug\Server2\Servers\ISocket;
  */
 class StartHelper extends Abstracts\Base implements IHelper
 {
+    /**
+     * 描述
+     * @var string
+     */
+    protected static $description = "start server";
+    /**
+     * 选项
+     * @var array
+     */
+    protected static $options = [
+        [
+            'name' => 'daemon',
+            'short' => 'd',
+            'desc' => 'run with daemonize mode'
+        ],
+        [
+            'name' => 'env',
+            'short' => 'e',
+            'desc' => 'specify environment name, accepted: development, testing, release, production'
+        ],
+        [
+            'name' => 'host',
+            'short' => 'h',
+            'desc' => 'specify an ip address, only work for IPv4'
+        ],
+        [
+            'name' => 'ipaddr',
+            'desc' => 'same as --host option'
+        ],
+        [
+            'name' => 'port',
+            'short' => 'p',
+            'desc' => 'specify an listen port, eg: 8080'
+        ]
+    ];
+
     public function beforeRun()
     {
         $this->merger();
@@ -41,7 +77,6 @@ class StartHelper extends Abstracts\Base implements IHelper
      */
     public function runHelper()
     {
-        // todo: help for start
-        $this->console->debug("todo: %s", __METHOD__);
+        $this->printOptions(self::$options);
     }
 }

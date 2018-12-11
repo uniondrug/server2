@@ -11,6 +11,12 @@ namespace Uniondrug\Server2\Helpers;
  */
 class ReloadHelper extends Abstracts\Base implements IHelper
 {
+    /**
+     * 描述
+     * @var string
+     */
+    protected static $description = "reload worker and tasker processes";
+
     public function run()
     {
         $this->request("PUT", "/reload");
@@ -18,7 +24,5 @@ class ReloadHelper extends Abstracts\Base implements IHelper
 
     public function runHelper()
     {
-        // todo: help for stop
-        $this->console->debug("todo: %s", __METHOD__);
     }
 }

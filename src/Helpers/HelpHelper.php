@@ -11,6 +11,8 @@ namespace Uniondrug\Server2\Helpers;
  */
 class HelpHelper extends Abstracts\Base implements IHelper
 {
+    protected static $description = "show help center";
+
     /**
      * Helper主入口
      */
@@ -24,7 +26,33 @@ class HelpHelper extends Abstracts\Base implements IHelper
      */
     public function runHelper()
     {
-        echo "Usage: \n";
-        echo "Commands: \n";
+        $commands = $this->findCommands();
+        $this->printCommands($commands);
+    }
+
+    /**
+     * 通过反射找到Command
+     * @return array
+     */
+    private function findCommands()
+    {
+        $data = [];
+        $path = dir(__DIR__);
+        while (false !== ($entry = $path->read())) {
+            if (preg_match("/^([A-Z][a-zA-Z0-9]*)Helper\.php/", $entry, $m)) {
+                /**
+                 * @var IHelper $class
+                 */
+                $class = "\\Uniondrug\\Server2\\Helpers\\{$m[1]}Helper";
+                if (is_a($class, IHelper::class, true) && class_exists($class)) {
+                    $data[] = [
+                        'name' => lcfirst($m[1]),
+                        'desc' => $class::desc()
+                    ];
+                }
+            }
+        }
+        $path->close();
+        return $data;
     }
 }

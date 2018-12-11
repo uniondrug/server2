@@ -6,24 +6,25 @@
 namespace Uniondrug\Server2\Helpers;
 
 /**
- * 操作Consul
+ * 重载服务
  * @package Uniondrug\Server2\Helpers
  */
-class ConsulHelper extends Abstracts\Base implements IHelper
+class ReloadallHelper extends Abstracts\Base implements IHelper
 {
     /**
      * 描述
      * @var string
      */
-    protected static $description = "manage micro service";
+    protected static $description = "reload all processes";
 
     public function run()
     {
+        $this->request("PUT", "/reload");
     }
 
     public function runHelper()
     {
-        // todo: help for consul
+        // todo: help for stop
         $this->console->debug("todo: %s", __METHOD__);
     }
 }

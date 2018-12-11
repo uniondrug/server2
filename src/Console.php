@@ -141,7 +141,7 @@ class Console
         }
         // 3. StdOut
         $label = isset(self::$levelTexts[$level]) ? self::$levelTexts[$level] : 'OTHERS';
-        $stdout = sprintf("[%s]%s", $label, $contents);
+        $stdout = sprintf("[%s]%s", $label, $buffer);
         if (isset(self::$levelColors[$level])) {
             $color = self::$levelColors[$level];
             $stdout = sprintf("\033[%d;%dm%s\033[0m", $color[0], $color[1], $stdout);

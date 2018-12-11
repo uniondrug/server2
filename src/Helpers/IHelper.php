@@ -7,6 +7,13 @@ namespace Uniondrug\Server2\Helpers;
 
 interface IHelper
 {
+    /**
+     * 读取Helper用途
+     * @return string
+     */
+    public static function desc();
+
     public function run();
+
     public function runHelper();
 }

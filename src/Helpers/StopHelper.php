@@ -11,6 +11,18 @@ namespace Uniondrug\Server2\Helpers;
  */
 class StopHelper extends Abstracts\Base implements IHelper
 {
+    /**
+     * 描述
+     * @var string
+     */
+    protected static $description = "stop server";
+    protected static $options = [
+        [
+            'name' => 'worker',
+            'desc' => 'special the worker process and stop'
+        ]
+    ];
+
     public function run()
     {
         $this->request("PUT", "/stop");
@@ -18,7 +30,6 @@ class StopHelper extends Abstracts\Base implements IHelper
 
     public function runHelper()
     {
-        // todo: help for stop
-        $this->console->debug("todo: %s", __METHOD__);
+        $this->
     }
 }

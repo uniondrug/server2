@@ -98,10 +98,11 @@ trait ConstractTrait
      */
     private function initializeManager()
     {
-        $managerAddr = $this->builder->getManagerAddr();
-        if (preg_match("/127\.0\.0\.1:\d+/", $managerAddr) || preg_match("/0\.0\.0\.0:\d+/", $managerAddr)) {
+        $addr = $this->builder->getAddr();
+        if (preg_match("/127\.0\.0\.1:\d+/", $addr) || preg_match("/0\.0\.0\.0:\d+/", $addr)) {
             return;
         }
+        $managerAddr = $this->builder->getManagerAddr();
         $this->console->info("[server=manager]监听{%s}管理地址", $managerAddr);
         $sockType = $this->builder->getOption('startSockType');
         $sockType || $sockType = SWOOLE_SOCK_TCP;
