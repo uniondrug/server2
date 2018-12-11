@@ -23,6 +23,7 @@ class ReloadManager extends Abstracts\Manager
         // 1. 向Process进程发送SIGTERM退出信号
         $pp = $this->server->getPidTable()->getProcessPid();
         foreach ($pp as $p) {
+            $this->server->console->warning("强制Kill{%d}号{%s}进程", $p['pid'], $p['name']);
             XProcess::kill($p['pid'], SIGTERM);
         }
         // 2. 退出Task/Worker进程

@@ -73,4 +73,6 @@ interface IHttp
      * @return mixed
      */
     public function task($data, $workerId = null, $callback = null);
+
+    public function tick($ms, $call);
 }

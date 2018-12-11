@@ -15,7 +15,6 @@ use Uniondrug\Server2\Servers\ISocket;
  */
 abstract class XProcess extends SwooleProcess implements IProcess
 {
-    const PROCESS_CHECK_PARENT_FREQUENCY = 3000;
     /**
      * 进程入参
      * @var array
@@ -26,6 +25,11 @@ abstract class XProcess extends SwooleProcess implements IProcess
      * @var string
      */
     protected $pidName;
+    /**
+     * 父进程ID
+     * @var int
+     */
+    protected $ppid;
     /**
      * Server实例
      * @var IHttp|ISocket
@@ -76,11 +80,6 @@ abstract class XProcess extends SwooleProcess implements IProcess
         $this->server->getConsole()->info("进程启动");
         // 2. 进程信号监听
         $this->registerSignal();
-        // 3. 定时器
-        swoole_timer_tick(self::PROCESS_CHECK_PARENT_FREQUENCY, [
-            $this,
-            'timerCheckParent'
-        ]);
         // 3. 进入业务
         $this->run();
     }
@@ -93,7 +92,7 @@ abstract class XProcess extends SwooleProcess implements IProcess
     }
 
     /**
-     * 收到子进程退出
+     * 收到SIGCHLD/子进程退出
      * @param int $signal
      */
     public function signalChild(int $signal)
@@ -101,30 +100,51 @@ abstract class XProcess extends SwooleProcess implements IProcess
     }
 
     /**
-     * Process主逻辑
+     * 收到SIGKILL/强杀信号
+     * 一般和SIGQUIT类似捕获不到
+     * @param int $signal
+     */
+    public function signalKill(int $signal)
+    {
+    }
+
+    /**
+     * 收到SIGTERM/退出信号
+     * @param int $signal
      */
     public function signalTerm(int $signal)
     {
         $this->server->getConsole()->warning("进程退出");
+        // 1. 先杀掉子进程
+        $ps = $this->server->getPidTable()->toArray();
+        foreach ($ps as $p) {
+            // 1.1 not child
+            if ($p['ppid'] != $this->pid) {
+                continue;
+            }
+            // 1.2 is child process
+            parent::kill($p['pid'], SIGKILL);
+            $this->server->getConsole()->warning("Send to child %d", $signal, $p['pid']);
+        }
+        // 2. Kill本进程
         $this->server->getPidTable()->del($this->pid);
         $this->exit($signal);
     }
 
     /**
-     * 定时器检查父进程
-     * 若父进程不存在时即自杀
-     * 默认: 3秒(3000豪秒)
+     * 收到SIGUSR1信号
+     * @param int $signal
      */
-    public function timerCheckParent()
+    public function signalUsr1(int $signal)
     {
-        if (function_exists('posix_getppid')) {
-            $ppid = posix_getppid();
-            $alive = $ppid > 1 ? parent::kill($ppid, 0) : false;
-            if (!$alive) {
-                $this->server->getConsole()->warning("进程被回收");
-                $this->signalTerm(1);
-            }
-        }
+    }
+
+    /**
+     * 收到SIGUSR2信号
+     * @param int $signal
+     */
+    public function signalUsr2(int $signal)
+    {
     }
 
     /**
@@ -148,7 +168,7 @@ abstract class XProcess extends SwooleProcess implements IProcess
      */
     private function registerSignalFired(int $signal)
     {
-        $this->server->getConsole()->debug("收到{%s}号信号", $signal);
+        $this->server->getConsole()->info("收到{%d}号信号", $signal);
         // 1. 回调定义检查
         $calls = isset($this->signals[$signal]) && is_array($this->signals[$signal]) && count($this->signals[$signal]) ? $this->signals[$signal] : false;
         if ($calls === false) {
