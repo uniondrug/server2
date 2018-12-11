@@ -125,13 +125,13 @@ trait ConstractTrait
         foreach ($processes as $process) {
             // 4. 未实现接口
             if (!is_a($process, IProcess::class, true)) {
-                $this->console->warning("XProcess{%s}未实现{%s}接口", $process, IProcess::class);
+                $this->console->warning("Process{%s}未实现{%s}接口", $process, IProcess::class);
                 continue;
             }
             // 5. 创建实例
             try {
                 $this->addProcess(new $process($this));
-                $this->console->debug("XProcess{%s}加入{%s}服务", $process, $this->builder->getAppName());
+                $this->console->debug("Process{%s}加入{%s}服务", $process, $this->builder->getAppName());
             } catch(\Throwable $e) {
                 $this->console->error("创建Process{%s}失败 - %s", $process, $e->getMessage());
             }

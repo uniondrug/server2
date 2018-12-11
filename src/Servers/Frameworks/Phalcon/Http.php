@@ -54,6 +54,7 @@ class Http extends XHttp
         $pr = $this->handleRequest($this, $request, $response);
         $response->statusCode = $pr->getStatusCode();
         $response->statusCode || $response->statusCode = 200;
+        $response->header("Content-Type", "application/json");
         $response->status($response->statusCode);
         $response->end($pr->getContent());
     }

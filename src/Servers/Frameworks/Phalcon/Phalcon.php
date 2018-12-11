@@ -78,7 +78,7 @@ trait Phalcon
             return;
         }
         // 2. 初始化Framework
-        $server->getConsole()->error("初始化框架{%s}容器", Container::class);
+        $server->console->debug("初始化框架{%s}容器", Container::class);
         putenv("APP_ENV={$server->builder->getEnvironment()}");
         $server->container = new Container($server->builder->getBasePath());
         $server->application = new Application($server->container);
