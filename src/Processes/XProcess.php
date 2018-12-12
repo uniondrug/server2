@@ -124,7 +124,6 @@ abstract class XProcess extends SwooleProcess implements IProcess
             }
             // 1.2 is child process
             parent::kill($p['pid'], SIGKILL);
-            $this->server->getConsole()->warning("Send to child %d", $signal, $p['pid']);
         }
         // 2. Kill本进程
         $this->server->getPidTable()->del($this->pid);

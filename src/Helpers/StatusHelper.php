@@ -16,7 +16,15 @@ class StatusHelper extends Abstracts\Base implements IHelper
      * @var string
      */
     protected static $description = "show server status and stats";
+    /**
+     * 选项
+     * @var array
+     */
+    protected static $options = [];
 
+    /**
+     * 运行过程
+     */
     public function run()
     {
         $this->console->info("请求{%s}环境的{%s}服务状态", $this->builder->getEnvironment(), $this->builder->getAppName());
@@ -36,7 +44,15 @@ class StatusHelper extends Abstracts\Base implements IHelper
         }
     }
 
+    /**
+     * 打印帮助选项
+     */
     public function runHelper()
+    {
+        $this->printOptions(self::$options);
+    }
+
+    private function byForce()
     {
     }
 }

@@ -84,19 +84,23 @@ abstract class Base
      * @param string $uri
      * @return bool|mixed
      */
-    protected function request(string $method, string $uri)
+    protected function request(string $method, string $uri, array $data = null)
     {
         $uri = preg_replace("/^\/+/", "", $uri);
         $url = sprintf("http://%s/%s", $this->builder->getManagerAddr(), $uri);
         try {
-            $client = new Client([
+            $opts = [
                 'timeout' => 1,
                 'headers' => [
                     'user-agent' => $this->builder->getAppName(),
                     'manager-token' => isset($this->managerDecode['token']) ? $this->managerDecode['token'] : 'null'
                 ]
-            ]);
-            $request = $client->request($method, $url);
+            ];
+            if (is_array($data)) {
+                $opts['json'] = $data;
+            }
+            $client = new Client();
+            $request = $client->request($method, $url, $opts);
             $content = $request->getBody()->getContents();
             if ($content !== '') {
                 return json_decode($content, true);
@@ -209,5 +213,25 @@ abstract class Base
             $i++;
         }
         echo sprintf("%s\n", $separator);
+    }
+
+    /**
+     * 打印内容
+     * @param string $format
+     * @param array  ...$args
+     */
+    protected function println(string $format, ... $args)
+    {
+        $args = is_array($args) ? $args : [];
+        array_unshift($args, $format);
+        $text = call_user_func_array('sprintf', $args);
+        if (false === $text) {
+            $text = $format."^A".implode("^C", $args);
+        }
+        // green
+        $text = preg_replace_callback("/\[([^\]]+)\]/", function($a){
+            return "[\033[31;49m{$a[1]}\033[0m]";
+        }, $text);
+        file_put_contents("php://stdout", "{$text}\n");
     }
 }

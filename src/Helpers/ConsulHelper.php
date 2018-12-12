@@ -23,7 +23,6 @@ class ConsulHelper extends Abstracts\Base implements IHelper
 
     public function runHelper()
     {
-        // todo: help for consul
         $this->console->debug("todo: %s", __METHOD__);
     }
 }
