@@ -23,8 +23,8 @@
 | settings.startSockType | int | 1 | Swoole下的Socket类型 |
 | settings.reconnectMysqlSeconds | int | 10 | 每隔10秒, 进行MySQL连接的健康检查, 防止GoneAway错误 |
 | settings.reconnectRedisSeconds | int | 10 | 每隔10秒, 进行Redis连接的健康检查, 防止GoneAway错误 |
-| settings | processes | [] | 外挂Process进程 |
-| settings | tables | [] | 指定内存表 |
+| processes | array | Process类名 | 外挂Process进程 |
+| tables | array | Table类名/空间 | 指定内存表 |
 
 ```php
 <?php
