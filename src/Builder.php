@@ -45,6 +45,7 @@ class Builder
      * @var string
      */
     private $host = "";
+    private $hostRegexp = "/^\d+\.\d+\.\d+\.\d+$/";
     /**
      * 服务主机端口号
      * @var int
@@ -177,7 +178,7 @@ class Builder
     }
 
     /**
-     * 读取主机名
+     * 读取主机IP
      * @return string
      * @example return "192.168.10.100"
      */
@@ -214,6 +215,7 @@ class Builder
     }
 
     /**
+     * 读取选项
      * @param string $key
      * @return mixed|null
      */
@@ -242,6 +244,7 @@ class Builder
     }
 
     /**
+     * 读取Server配置
      * @return array
      */
     public function getSettings()
@@ -259,7 +262,9 @@ class Builder
     }
 
     /**
-     * 从配置文件读取参数
+     * 导入参数
+     * 扫描项目目录下的配置文件，从配置文件中提取
+     * 关键项, 并赋值初始值
      */
     public function loader()
     {
@@ -299,15 +304,16 @@ class Builder
         // 8. 解析IP与端口
         $host = isset($conf['server']['host']) && $conf['server']['host'] ? $conf['server']['host'] : null;
         if ($host) {
-            if (preg_match("/([0-9\.]+):(\d+)/", $host, $m) > 0) {
-                $this->host = $m[1];
-                $this->port = (int) $m[2];
+            if (preg_match("/([_a-zA-Z0-9\-\.]+):(\d+)/", $host, $m) > 0) {
+                $this->setHost($m[1]);
+                $this->setPort($m[2]);
             }
         }
     }
 
     /**
-     * 从Help对象合并参数
+     * 合并参数
+     * 从Help对象合并参数(来自命令行指定)
      * @param Helper $helper
      */
     public function mergeHelper(Helper $helper)
@@ -326,12 +332,22 @@ class Builder
         $daemon && $this->settings['daemonize'] = 1;
     }
 
+    /**
+     * 设置基础路径
+     * @param string $basePath
+     * @return $this
+     */
     public function setBasePath(string $basePath)
     {
         $this->basePath = $basePath;
         return $this;
     }
 
+    /**
+     * 设置入口类名
+     * @param string $entrypoint
+     * @return $this
+     */
     public function setEntrypoint(string $entrypoint)
     {
         $this->entrypoint = $entrypoint;
@@ -349,18 +365,38 @@ class Builder
         return $this;
     }
 
+    /**
+     * 设置关联Helper
+     * @param Helper $helper
+     * @return $this
+     */
     public function setHelper(Helper $helper)
     {
         $this->helper = $helper;
         return $this;
     }
 
+    /**
+     * 设置IP地址
+     * @param string $host
+     * @return $this
+     */
     public function setHost(string $host)
     {
-        $this->host = $host;
+        if (preg_match($this->hostRegexp, $host) > 0) {
+            $this->host = $host;
+        } else {
+            $read = $this->parseNetwork($host);
+            $this->host = $read !== false ? $read : $host;
+        }
         return $this;
     }
 
+    /**
+     * 设置Server端口
+     * @param int $port
+     * @return $this
+     */
     public function setPort(int $port)
     {
         $this->port = $port;
@@ -368,6 +404,8 @@ class Builder
     }
 
     /**
+     * 按路径创建
+     * 使用路径扫描配置文件, 从配置文件中提取参数
      * @param Helper $helper
      * @param string $basePath
      * @return Builder
@@ -378,5 +416,60 @@ class Builder
         $builder->setHelper($helper)->setBasePath($basePath);
         $builder->loader();
         return $builder;
+    }
+
+    /**
+     * 解析IP
+     * 按Host网卡名称读取IP
+     * @param string $host
+     * @return false|string
+     */
+    private function parseNetwork(string $host)
+    {
+        $addr = $this->parseNetworkIpadd($host);
+        $addr === false && $addr = $this->parseNetworkIfconfig($host);
+        return $addr === false ? false : $addr;
+    }
+
+    /**
+     * @param string $host
+     * @return false|string
+     */
+    private function parseNetworkIfconfig(string $host)
+    {
+        // 1. read all
+        $cmd = 'ifconfig';
+        $str = shell_exec($cmd);
+        $str = preg_replace("/\n\s+/", " ", $str);
+        // 2. filter host
+        if (preg_match("/({$host}[^\n]+)/", $str, $m) === 0) {
+            return false;
+        }
+        // 3. filter ip addr
+        //    inet addr:10.168.74.190
+        //    inet 192.168.10.116
+        if (preg_match("/inet\s+[a-z:]*(\d+\.\d+\.\d+\.\d+)/", $m[1], $z) > 0) {
+            return $z[1];
+        }
+        return false;
+    }
+
+    /**
+     * 解析IP地址
+     * 以阿里云为例
+     * 1. eth0, 内网IP
+     * 2. eth1, 公网IP
+     * @param string $host
+     * @return false|string
+     */
+    private function parseNetworkIpadd(string $host)
+    {
+        $cmd = "ip -o -4 addr list '{$host}' | head -n1 | awk '{print \$4}' | cut -d/ -f1";
+        $addr = shell_exec($cmd);
+        $addr = trim($addr);
+        if ($addr !== "" && preg_match($this->hostRegexp, $addr) > 0) {
+            return $addr;
+        }
+        return false;
     }
 }

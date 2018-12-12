@@ -56,7 +56,11 @@ trait ConstractTrait
         $mode || $mode = SWOOLE_PROCESS;
         $sockType = $this->builder->getOption('startSockType');
         $sockType || $sockType = SWOOLE_SOCK_TCP;
+        // is validated ip addr
         $host = $this->builder->getHost();
+        if (!preg_match("/^\d+\.\d+\.\d+\.\d+$/", $host)) {
+            throw new \Exception("can not convert '{$host}' to ip addr");
+        }
         $this->console->setPrefix("[{$this->builder->getAddr()}]");
         $this->console->info("[server=init]初始化{%s/%s}服务", $this->builder->getAppName(), $this->builder->getAppVersion());
         $this->console->debug("入口{%s}实例", $this->builder->getEntrypoint());
