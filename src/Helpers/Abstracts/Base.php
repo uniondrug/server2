@@ -40,13 +40,12 @@ abstract class Base
         // 2. current options
         $opt = '[OPTIONS]';
         // 3. information
-        $this->println("环境 - %s", $this->builder->getEnvironment());
-        $this->println("项目 - %s/%s", $this->builder->getAppName(), $this->builder->getAppVersion());
-        //$this->println("App      : %s/%s", $this->builder->getAppName(), $this->builder->getAppVersion());
+        //        $this->println("环境 - %s", $this->builder->getEnvironment());
+        //        $this->println("项目 - %s/%s", $this->builder->getAppName(), $this->builder->getAppVersion());
+        //        $this->println("地址 - %s", $this->builder->getAddr());
+        //        $this->println("用法 - %s %s %s", $this->helper->getScript(), $cmd, $opt);
         //$this->println("Path     : %s", $this->builder->getBasePath());
-        //$this->println("Listen   : %s", $this->builder->getAddr());
         //$this->println("Manager  : %s", $this->builder->getManagerAddr());
-        $this->println("用法 - %s %s %s", $this->helper->getScript(), $cmd, $opt);
     }
 
     protected function beforeRun()
@@ -73,8 +72,13 @@ abstract class Base
         return static::$description;
     }
 
-    public function run(){}
-    public function runHelper(){}
+    public function run()
+    {
+    }
+
+    public function runHelper()
+    {
+    }
 
     protected function merger()
     {
@@ -110,9 +114,9 @@ abstract class Base
             }
             return false;
         } catch(ConnectException $e) {
-            $this->println("error - server quited or not started");
+            $this->println("错误 - 服务已退出或未启动");
         } catch(\Throwable $e) {
-            $this->println("error - %d responsed", $e->getCode());
+            $this->println("错误 - 无效的%d返回", $e->getCode());
         }
         return false;
     }
@@ -125,8 +129,7 @@ abstract class Base
     {
         $this->println("命令 - 如下");
         foreach ($commands as $c) {
-            $c['name'] === 'help' ||
-            $this->println("       %-18s %s", $c['name'], $c['desc']);
+            $c['name'] === 'help' || $this->println("       %-18s %s", $c['name'], $c['desc']);
         }
     }
 
@@ -142,10 +145,20 @@ abstract class Base
         ];
         $this->println("选项 - 如下");
         foreach ($options as $c) {
+            // 1. short tag
             $short = isset($c['short']) && $c['short'] ? "-{$c['short']}," : '   ';
+            // 2. name
             $name = $c['name'];
+            // 3. value of option
+            $value = isset($c['value']) ? $c['value'] : '';
+            // 4. description
             $desc = isset($c['desc']) && $c['desc'] !== '' ? $c['desc'] : null;
-            $this->println("       %-18s %s", $short.'--'.$name, $desc);
+            // 5. default value
+            if (isset($c['default']) && $c['default'] !== '') {
+                $desc .= ' (default: '.$c['default'].')';
+            }
+            // 6. print line
+            $this->println("     %-32s %s", $short.'--'.$name.$value, $desc);
         }
     }
 
@@ -232,10 +245,6 @@ abstract class Base
         if (false === $text) {
             $text = $format."^A".implode("^C", $args);
         }
-        // green
-        $text = preg_replace_callback("/\[([^\]]+)\]/", function($a){
-            return "[\033[31;49m{$a[1]}\033[0m]";
-        }, $text);
         file_put_contents("php://stdout", "{$text}\n");
     }
 }

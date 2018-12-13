@@ -15,7 +15,7 @@ class StatusHelper extends Abstracts\Base implements IHelper
      * 描述
      * @var string
      */
-    protected static $description = "show server status and stats";
+    protected static $description = "列出服务状态";
     /**
      * 选项
      * @var array
@@ -27,7 +27,7 @@ class StatusHelper extends Abstracts\Base implements IHelper
      */
     public function run()
     {
-        $this->console->info("请求{%s}环境的{%s}服务状态", $this->builder->getEnvironment(), $this->builder->getAppName());
+        $this->println("操作 - 获取服务状态");
         $result = $this->request("GET", "/status");
         if ($result === false) {
             return;
@@ -42,17 +42,5 @@ class StatusHelper extends Abstracts\Base implements IHelper
                 $this->printTable($data);
             }
         }
-    }
-
-    /**
-     * 打印帮助选项
-     */
-    public function runHelper()
-    {
-        $this->printOptions(self::$options);
-    }
-
-    private function byForce()
-    {
     }
 }

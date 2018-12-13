@@ -15,7 +15,7 @@ class ReloadHelper extends Abstracts\Base implements IHelper
      * 描述
      * @var string
      */
-    protected static $description = "reload worker and tasker processes";
+    protected static $description = "退出Tasker/Worker进程, 然后启动";
 
     /**
      * 发起Reload请求

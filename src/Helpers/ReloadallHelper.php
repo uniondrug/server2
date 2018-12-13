@@ -15,7 +15,7 @@ class ReloadallHelper extends Abstracts\Base implements IHelper
      * 描述
      * @var string
      */
-    protected static $description = "reload all processes";
+    protected static $description = "退出Process/Tasker/Worker进程, 然后启动";
 
     public function run()
     {

@@ -84,6 +84,11 @@ class Helper
     {
     }
 
+    public function setCommand(string $command)
+    {
+        $this->command = $command;
+    }
+
     /**
      * 收集选项
      * @param string $key
@@ -107,6 +112,16 @@ class Helper
                 break;
         }
         $this->options[$key] = $value;
+    }
+
+    public function unsetOption(string ... $keys)
+    {
+        is_string($keys) && $keys = [$keys];
+        if (is_array($keys)) {
+            foreach ($keys as $key) {
+                unset($this->options[$key]);
+            }
+        }
     }
 
     /**

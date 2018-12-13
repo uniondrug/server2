@@ -15,7 +15,7 @@ class ConsulHelper extends Abstracts\Base implements IHelper
      * 描述
      * @var string
      */
-    protected static $description = "manage micro service";
+    protected static $description = "微服务管理";
 
     public function run()
     {

@@ -18,7 +18,7 @@ class StartHelper extends Abstracts\Base implements IHelper
      * 描述
      * @var string
      */
-    protected static $description = "start server";
+    protected static $description = "启动服务";
     /**
      * 选项
      * @var array

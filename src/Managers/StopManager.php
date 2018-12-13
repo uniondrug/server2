@@ -17,9 +17,6 @@ class StopManager extends Abstracts\Manager
      */
     public function run()
     {
-        $result = ['stats' => $this->server->stats()];
-        $result['process'] = $this->server->getPidTable()->toArray();
         $this->server->shutdown();
-        return $result;
     }
 }
