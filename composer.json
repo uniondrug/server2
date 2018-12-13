@@ -17,7 +17,7 @@
         "psr-4" : {
             "Uniondrug\\Server2\\" : "src/"
         }
-    }
+    },
     "bin" : [
         "server"
     ]
