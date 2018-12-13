@@ -5,8 +5,6 @@
  */
 namespace Uniondrug\Server2\Managers;
 
-use Uniondrug\Server2\Processes\XProcess;
-
 /**
  * 重载服务
  * @package Uniondrug\Server2\Managers
@@ -20,9 +18,7 @@ class ReloadManager extends Abstracts\Manager
      */
     public function run()
     {
-        $this->server->reload();
-        $result = ['stats' => $this->server->stats()];
-        $result['process'] = $this->server->getPidTable()->toArray();
-        return $result;
+        $this->killProcess(SIGTERM, $this->server->getPidTable()->getTaskerPid());
+        $this->killProcess(SIGTERM, $this->server->getPidTable()->getWorkerPid());
     }
 }

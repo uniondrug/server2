@@ -17,12 +17,16 @@ class ReloadHelper extends Abstracts\Base implements IHelper
      */
     protected static $description = "reload worker and tasker processes";
 
+    /**
+     * 发起Reload请求
+     */
     public function run()
     {
-        $this->request("PUT", "/reload");
-    }
-
-    public function runHelper()
-    {
+        $this->println("操作 - 发起Worker/Tasker进程重启请求");
+        $response = $this->request("PUT", "/reload");
+        if (false === $response) {
+            return;
+        }
+        $this->println("完成");
     }
 }

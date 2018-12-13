@@ -6,7 +6,6 @@
 namespace Uniondrug\Server2\Helpers\Abstracts;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use Uniondrug\Server2\Builder;
 use Uniondrug\Server2\Console;
@@ -41,12 +40,13 @@ abstract class Base
         // 2. current options
         $opt = '[OPTIONS]';
         // 3. information
-        echo sprintf("App      : %s/%s\n", $this->builder->getAppName(), $this->builder->getAppVersion());
-        echo sprintf("Env      : %s\n", $this->builder->getEnvironment());
-        echo sprintf("Path     : %s\n", $this->builder->getBasePath());
-        echo sprintf("Listen   : %s\n", $this->builder->getAddr());
-        echo sprintf("Manager  : %s\n", $this->builder->getManagerAddr());
-        echo sprintf("Usage    : %s %s %s\n", $this->helper->getScript(), $cmd, $opt);
+        $this->println("环境 - %s", $this->builder->getEnvironment());
+        $this->println("项目 - %s/%s", $this->builder->getAppName(), $this->builder->getAppVersion());
+        //$this->println("App      : %s/%s", $this->builder->getAppName(), $this->builder->getAppVersion());
+        //$this->println("Path     : %s", $this->builder->getBasePath());
+        //$this->println("Listen   : %s", $this->builder->getAddr());
+        //$this->println("Manager  : %s", $this->builder->getManagerAddr());
+        $this->println("用法 - %s %s %s", $this->helper->getScript(), $cmd, $opt);
     }
 
     protected function beforeRun()
@@ -72,6 +72,9 @@ abstract class Base
     {
         return static::$description;
     }
+
+    public function run(){}
+    public function runHelper(){}
 
     protected function merger()
     {
@@ -107,9 +110,9 @@ abstract class Base
             }
             return false;
         } catch(ConnectException $e) {
-            $this->console->error("服务已退出");
+            $this->println("error - server quited or not started");
         } catch(\Throwable $e) {
-            $this->console->error("无效的{%d}应答", $e->getCode());
+            $this->println("error - %d responsed", $e->getCode());
         }
         return false;
     }
@@ -120,9 +123,10 @@ abstract class Base
      */
     protected function printCommands(array $commands)
     {
-        echo sprintf("Commands :\n");
+        $this->println("命令 - 如下");
         foreach ($commands as $c) {
-            echo sprintf("           %-18s %s\n", $c['name'], $c['desc']);
+            $c['name'] === 'help' ||
+            $this->println("       %-18s %s", $c['name'], $c['desc']);
         }
     }
 
@@ -136,12 +140,12 @@ abstract class Base
             'name' => 'help',
             'desc' => 'show options, accepted by any command.'
         ];
-        echo sprintf("Options  :\n");
+        $this->println("选项 - 如下");
         foreach ($options as $c) {
             $short = isset($c['short']) && $c['short'] ? "-{$c['short']}," : '   ';
             $name = $c['name'];
             $desc = isset($c['desc']) && $c['desc'] !== '' ? $c['desc'] : null;
-            echo sprintf("           %-18s %s\n", $short.'--'.$name, $desc);
+            $this->println("       %-18s %s", $short.'--'.$name, $desc);
         }
     }
 
@@ -167,11 +171,11 @@ abstract class Base
             }
             $separator .= '+';
         }
-        echo sprintf("%s\n", $separator);
+        $this->println("%s", $separator);
         foreach ($data as $key => $value) {
-            echo sprintf("| %{$size[0]}s | %-{$size[1]}s |\n", $key, $value);
+            $this->println("| %{$size[0]}s | %-{$size[1]}s |", $key, $value);
         }
-        echo sprintf("%s\n", $separator);
+        $this->println("%s", $separator);
     }
 
     /**
@@ -205,14 +209,14 @@ abstract class Base
                 $line .= sprintf(" %-{$size[$key]}s |", $value);
             }
             if ($i === 0) {
-                echo sprintf("%s\n", $separator);
-                echo sprintf("%s\n", $head);
-                echo sprintf("%s\n", $separator);
+                $this->println("%s", $separator);
+                $this->println("%s", $head);
+                $this->println("%s", $separator);
             }
-            echo sprintf("%s\n", $line);
+            $this->println("%s", $line);
             $i++;
         }
-        echo sprintf("%s\n", $separator);
+        $this->println("%s", $separator);
     }
 
     /**

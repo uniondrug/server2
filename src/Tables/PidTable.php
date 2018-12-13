@@ -152,16 +152,31 @@ class PidTable extends XTable
         return parent::del($pid);
     }
 
+    /**
+     * 读取Process进程列表
+     * @return array
+     */
     public function getProcessPid()
     {
-        $res = [];
-        $datas = $this->toArray();
-        foreach ($datas as $data) {
-            if ($data['type'] === self::PID_PROCESS) {
-                $res[] = $data;
-            }
-        }
-        return $res;
+        return $this->filterByTypes([self::PID_PROCESS]);
+    }
+
+    /**
+     * 读取Tasker进程列表
+     * @return array
+     */
+    public function getTaskerPid()
+    {
+        return $this->filterByTypes([self::PID_TASKER]);
+    }
+
+    /**
+     * 读取Worker进程列表
+     * @return array
+     */
+    public function getWorkerPid()
+    {
+        return $this->filterByTypes([self::PID_WORKER]);
     }
 
     /**
@@ -180,6 +195,10 @@ class PidTable extends XTable
         return parent::set($pid, $data);
     }
 
+    /**
+     * 读取全部进程列表
+     * @return array
+     */
     public function toArray()
     {
         $res = [];
@@ -190,5 +209,22 @@ class PidTable extends XTable
         ksort($res);
         reset($res);
         return $res;
+    }
+
+    /**
+     * 按类型过滤
+     * @param array $types 类型列表
+     * @return array
+     */
+    private function filterByTypes(array $types = [])
+    {
+        $datas = [];
+        $procs = $this->toArray();
+        foreach ($procs as $proc) {
+            if (in_array($proc['type'], $types)) {
+                $datas[] = $proc;
+            }
+        }
+        return $datas;
     }
 }

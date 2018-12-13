@@ -25,11 +25,16 @@ class StopHelper extends Abstracts\Base implements IHelper
     protected static $options = [
         [
             'name' => 'mode',
+            'short' => 'm',
             'desc' => 'special stop mode; accept: pid、name、auto.'
         ],
         [
             'name' => 'pid',
             'desc' => 'specify the master process id by pid mode'
+        ],
+        [
+            'name' => 'name',
+            'desc' => 'specify the master process name by name mode'
         ],
         [
             'name' => 'kill',

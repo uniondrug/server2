@@ -5,8 +5,6 @@
  */
 namespace Uniondrug\Server2\Managers;
 
-use Uniondrug\Server2\Processes\XProcess;
-
 /**
  * 重载服务
  * @package Uniondrug\Server2\Managers
@@ -20,17 +18,8 @@ class ReloadallManager extends Abstracts\Manager
      */
     public function run()
     {
-        // 1. 向Process进程发送SIGTERM退出信号
-        $pp = $this->server->getPidTable()->getProcessPid();
-        foreach ($pp as $p) {
-            $this->server->console->warning("强制Kill{%d}号{%s}进程", $p['pid'], $p['name']);
-            XProcess::kill($p['pid'], SIGTERM);
-        }
-        // 2. 退出Task/Worker进程
-        $this->server->reload();
-        // 3. 返回列表
-        $result = ['stats' => $this->server->stats()];
-        $result['process'] = $this->server->getPidTable()->toArray();
-        return $result;
+        $this->killProcess(SIGKILL, $this->server->getPidTable()->getProcessPid());
+        $this->killProcess(SIGTERM, $this->server->getPidTable()->getTaskerPid());
+        $this->killProcess(SIGTERM, $this->server->getPidTable()->getWorkerPid());
     }
 }

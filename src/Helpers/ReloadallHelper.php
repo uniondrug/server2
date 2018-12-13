@@ -19,12 +19,11 @@ class ReloadallHelper extends Abstracts\Base implements IHelper
 
     public function run()
     {
-        $this->request("PUT", "/reload");
-    }
-
-    public function runHelper()
-    {
-        // todo: help for stop
-        $this->console->debug("todo: %s", __METHOD__);
+        $this->println("操作 - 发起Worker/Tasker/Process进程重启请求");
+        $response = $this->request("PUT", "/reloadall");
+        if (false === $response) {
+            return;
+        }
+        $this->println("完成");
     }
 }

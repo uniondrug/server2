@@ -150,12 +150,15 @@ trait EventsTrait
         $uniqid || $uniqid = uniqid('req');
         $response->header("Server", $this->builder->getAppName().'/'.$this->builder->getAppVersion());
         $response->header("Udsdk-Reqid", $uniqid);
-        // HTTP请求日志
         $request->requestId = $uniqid;
-        $begin = microtime(true);
-        $this->defer(function() use ($request, $response, $begin){
-            $this->httpAccessLogger($this, $request, $response, $begin);
-        });
+        // HTTP请求日志
+        $enableHttpAccessLogger = $this->builder->getOption("enableHttpAccessLogger") === true;
+        if ($enableHttpAccessLogger){
+            $begin = microtime(true);
+            $this->defer(function() use ($request, $response, $begin){
+                $this->httpAccessLogger($this, $request, $response, $begin);
+            });
+        }
         // 管理进程
         if (isset($request->header, $request->header['host']) && $request->header['host'] === $this->builder->getManagerAddr()) {
             $this->onManagerRequest($request, $response);
