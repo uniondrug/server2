@@ -59,7 +59,8 @@ trait CommonTrait
         return false;
     }
 
-    public function getTables(){
+    public function getTables()
+    {
         return $this->initedTables;
     }
 
@@ -103,7 +104,14 @@ trait CommonTrait
             'class' => $class,
             'params' => $params
         ], JSON_UNESCAPED_UNICODE);
-        $this->getConsole()->debug("调用了{%s}方法 - %s", "runTask", $data);
+        $charset = "UTF-8";
+        $length = mb_strlen($data, $charset);
+        $maxLength = 150;
+        if ($length > $maxLength) {
+            $this->getConsole()->debug("调用了{%s}方法 - %s", "runTask", mb_substr($data, 0, $maxLength, $charset).'...');
+        } else {
+            $this->getConsole()->debug("调用了{%s}方法 - %s", "runTask", $data);
+        }
         // 2. in worker
         if ($this->worker_pid > 0) {
             if (!$this->taskworker) {
