@@ -53,6 +53,7 @@ class StartHelper extends Abstracts\Base implements IHelper
     public function beforeRun()
     {
         $this->merger();
+        putenv("APP_ENV={$this->builder->getEnvironment()}");
     }
 
     /**
