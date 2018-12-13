@@ -74,7 +74,7 @@ abstract class XProcess extends SwooleProcess implements IProcess
         $this->beforeRun();
         // 1. 计算进程名称
         $name = sprintf("%s.%s", $this->server->genPidName('process'), get_class($this));
-        $this->pidName = $name.($this->pidName ? ".{$this->pidName}" : '');
+        $this->pidName = $name.($this->pidName ? " {$this->pidName}" : '');
         $this->server->getPidTable()->addProcess($this->pid, $this->pidName);
         $this->server->setPidName($this->pidName);
         $this->server->getConsole()->info("进程启动");
