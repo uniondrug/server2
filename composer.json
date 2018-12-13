@@ -10,8 +10,7 @@
         }
     ],
     "require" : {
-        "uniondrug/framework" : "^2.9",
-        "uniondrug/swoole" : "^2.0"
+        "uniondrug/framework" : "^2.9"
     },
     "autoload" : {
         "psr-4" : {
