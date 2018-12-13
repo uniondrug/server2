@@ -35,12 +35,18 @@ trait ManagerTrait
         if ($uri && preg_match("/([^\/]+)/", $uri, $m) > 0) {
             $class = "\\Uniondrug\\Server2\\Managers\\".ucfirst($m[1])."Manager";
             if (class_exists($class, true) && is_a($class, IManager::class, true)) {
-                $this->console->debug("触发{%s}操作", $class);
-                $manager = new $class($this);
-                $data = $manager->run();
-                $response->status(200);
-                $response->header("content-type", "application/json");
-                $response->end(json_encode($data, JSON_ERROR_NONE));
+                $manager = new $class($this, $request);
+                try {
+                    $data = $manager->run();
+                    $this->console->debug("触发{%s}操作", $class);
+                    $response->status(200);
+                    $response->header("content-type", "application/json");
+                    $response->end(json_encode($data, JSON_UNESCAPED_UNICODE));
+                } catch(\Throwable $e) {
+                    $this->console->error("触发{%s}出错 - %s", $class, $e->getMessage());
+                    $response->status(401);
+                    $response->end("HTTP 401 Unauthorize");
+                }
                 return;
             }
         }

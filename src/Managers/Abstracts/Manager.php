@@ -16,14 +16,19 @@ abstract class Manager implements IManager
      * @var XHttp|XSocket
      */
     protected $server;
+    /**
+     * @var \Swoole\Http\Request
+     */
+    protected $request;
 
     /**
      * Manager constructor.
      * @param XHttp|XSocket $server
      */
-    public function __construct($server)
+    public function __construct($server, $request)
     {
         $this->server = $server;
+        $this->request = $request;
     }
 
     protected function killProcess(int $signal, array $process)
