@@ -97,7 +97,6 @@ trait Phalcon
      */
     private function startFrameworkMysqlCheck($server)
     {
-        return;
         // 1. 容器未加载
         if (!($server->container instanceof Container)) {
             $server->console->warning("框架{%s}未加载,跳过DB连接刷新", Container::class);
