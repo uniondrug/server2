@@ -18,6 +18,10 @@ class Builder
      * @var string
      */
     private $appName;
+    /**
+     * 应用版本
+     * @var string
+     */
     private $appVersion;
     /**
      * 项目根目录
@@ -45,6 +49,10 @@ class Builder
      * @var string
      */
     private $host = "";
+    /**
+     * 服务主机规则
+     * @var string
+     */
     private $hostRegexp = "/^\d+\.\d+\.\d+\.\d+$/";
     /**
      * 服务主机端口号
@@ -83,6 +91,11 @@ class Builder
      */
     private $tables = [];
 
+    /**
+     * 从临时文件中解析, 获取最近一次启
+     * 动时的参数
+     * @return array
+     */
     public function decodeTemp()
     {
         $data = ['token' => ''];
@@ -145,6 +158,10 @@ class Builder
         return $this->appVersion;
     }
 
+    /**
+     * 读取项目路径
+     * @return string
+     */
     public function getBasePath()
     {
         return $this->basePath;
@@ -197,6 +214,10 @@ class Builder
         return sprintf("%s:%d", self::MANAGER_HOST, $this->getPort());
     }
 
+    /**
+     * 读取管理地址
+     * @return string
+     */
     public function getManagerHost()
     {
         return self::MANAGER_HOST;

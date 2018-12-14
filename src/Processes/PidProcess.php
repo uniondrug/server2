@@ -22,6 +22,9 @@ class PidProcess extends XProcess
         });
     }
 
+    /**
+     * 从内存表去除Killed进程
+     */
     private function removeKilledProcesses()
     {
         $ps = $this->server->getPidTable()->toArray();

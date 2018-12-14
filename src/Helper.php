@@ -34,6 +34,10 @@ class Helper
      */
     private $command = null;
 
+    /**
+     * Helper constructor.
+     * @param array $args
+     */
     public function __construct(array $args = [])
     {
         $this->argumentParser($args);
@@ -78,19 +82,16 @@ class Helper
     }
 
     /**
-     * 从上次启动的信息里导出参数
+     * 设置Command名称
+     * @param string $command
      */
-    public function loader()
-    {
-    }
-
     public function setCommand(string $command)
     {
         $this->command = $command;
     }
 
     /**
-     * 收集选项
+     * 设置命令行选项
      * @param string $key
      * @param string $value
      */
@@ -114,6 +115,10 @@ class Helper
         $this->options[$key] = $value;
     }
 
+    /**
+     * 取消命令行选项
+     * @param \string[] ...$keys
+     */
     public function unsetOption(string ... $keys)
     {
         is_string($keys) && $keys = [$keys];

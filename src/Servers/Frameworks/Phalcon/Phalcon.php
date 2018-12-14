@@ -73,22 +73,22 @@ trait Phalcon
      */
     public function startFramework($server)
     {
-        // 1. 已启动
-        if ($server->container !== null && $server->application !== null) {
-            return;
-        }
-        // 2. 初始化Framework
-        $server->console->debug("初始化{%s}环境框架{%s}容器", $server->builder->getEnvironment(), Container::class);
-        putenv("APP_ENV={$server->builder->getEnvironment()}");
-        $server->container = new Container($server->builder->getBasePath());
-        $server->application = new Application($server->container);
-        $server->application->boot();
-        $server->container->setShared('server', $server);
-        // 3. 覆盖Request
-        $server->container->setShared('request', new Request());
-        // 4. MySQL/Redis健康检查定时器
-        $this->startFrameworkMysqlTimer($server);
-        $this->startFrameworkRedisTimer($server);
+//        // 1. 已启动
+//        if ($server->container !== null && $server->application !== null) {
+//            return;
+//        }
+//        // 2. 初始化Framework
+//        $server->console->debug("初始化{%s}环境框架{%s}容器", $server->builder->getEnvironment(), Container::class);
+//        putenv("APP_ENV={$server->builder->getEnvironment()}");
+//        $server->container = new Container($server->builder->getBasePath());
+//        $server->application = new Application($server->container);
+//        $server->application->boot();
+//        $server->container->setShared('server', $server);
+//        // 3. 覆盖Request
+//        $server->container->setShared('request', new Request());
+//        // 4. MySQL/Redis健康检查定时器
+//        $this->startFrameworkMysqlTimer($server);
+//        $this->startFrameworkRedisTimer($server);
     }
 
     /**
