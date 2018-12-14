@@ -42,6 +42,7 @@ abstract class XProcess extends SwooleProcess implements IProcess
     protected $signals = [
         SIGTERM => ['signalTerm'],
         SIGKILL => ['signalKill'],
+        SIGQUIT => ['signalKill'],
         SIGUSR1 => ['signalUsr1'],
         SIGUSR2 => ['signalUsr2'],
         SIGCHLD => ['signalChild']
@@ -78,7 +79,7 @@ abstract class XProcess extends SwooleProcess implements IProcess
         $this->pidName = $name.($this->pidName ? " {$this->pidName}" : '');
         $this->server->getPidTable()->addProcess($this->pid, $this->pidName);
         $this->server->setPidName($this->pidName);
-        $this->server->getConsole()->info("进程启动");
+        $this->server->getConsole()->info("进程{%s}启动", $this->pidName);
         // 2. 进程信号监听
         $this->registerSignal();
         // 3. 进入业务
@@ -86,14 +87,19 @@ abstract class XProcess extends SwooleProcess implements IProcess
     }
 
     /**
-     * 执行run()方法前操作
+     * 前置操作
+     * Process启动后, 首先执行beforeRun()方法, 本方法
+     * 可为run()方法执行前被始化系列参数
+     * @return void
      */
     public function beforeRun()
     {
     }
 
     /**
-     * 收到SIGCHLD/子进程退出
+     * Signal/SIGCHLD
+     * 当子进程退出后, 将向父进程发送SIGCHLD信号
+     * 父进程可按需进行业务处理
      * @param int $signal
      */
     public function signalChild(int $signal)
@@ -101,8 +107,8 @@ abstract class XProcess extends SwooleProcess implements IProcess
     }
 
     /**
-     * 收到SIGKILL/强杀信号
-     * 一般和SIGQUIT类似捕获不到
+     * Signal/SIGKILL|SIGQUIT
+     * 一般和SIGQUIT类似, 不能被正常捕获
      * @param int $signal
      */
     public function signalKill(int $signal)
@@ -110,12 +116,12 @@ abstract class XProcess extends SwooleProcess implements IProcess
     }
 
     /**
-     * 收到SIGTERM/退出信号
+     * Signal/SIGTERM
      * @param int $signal
      */
     public function signalTerm(int $signal)
     {
-        $this->server->getConsole()->warning("进程退出");
+        $this->server->getConsole()->warning("进程{%s}退出", $this->pidName);
         // 1. 先杀掉子进程
         $ps = $this->server->getPidTable()->toArray();
         foreach ($ps as $p) {
@@ -132,7 +138,7 @@ abstract class XProcess extends SwooleProcess implements IProcess
     }
 
     /**
-     * 收到SIGUSR1信号
+     * Signal/SIGUSR1
      * @param int $signal
      */
     public function signalUsr1(int $signal)
@@ -140,7 +146,7 @@ abstract class XProcess extends SwooleProcess implements IProcess
     }
 
     /**
-     * 收到SIGUSR2信号
+     * Signal/SIGUSR2
      * @param int $signal
      */
     public function signalUsr2(int $signal)
@@ -154,7 +160,7 @@ abstract class XProcess extends SwooleProcess implements IProcess
     private function registerSignal()
     {
         $signals = array_keys($this->signals);
-        $this->server->getConsole()->debug("注册信号");
+        $this->server->getConsole()->debug("进程{%s}注册{%s}信号", $this->pidName, implode("/", $signals));
         foreach ($signals as $signal) {
             parent::signal($signal, function(int $sig){
                 $this->registerSignalFired($sig);
@@ -168,27 +174,27 @@ abstract class XProcess extends SwooleProcess implements IProcess
      */
     private function registerSignalFired(int $signal)
     {
-        $this->server->getConsole()->info("收到{%d}号信号", $signal);
+        $this->server->getConsole()->info("进程{%s}收到{%d}号信号", $this->pidName, $signal);
         // 1. 回调定义检查
         $calls = isset($this->signals[$signal]) && is_array($this->signals[$signal]) && count($this->signals[$signal]) ? $this->signals[$signal] : false;
         if ($calls === false) {
-            $this->server->getConsole()->debug("第{%d}号信号无回调", $signal);
+            $this->server->getConsole()->notice("进程{%s}未定义{%d}号信号回调", $this->pidName, $signal);
             return;
         }
         // 2. 遍历回调
         foreach ($calls as $call) {
             // 2.1 方法定义检查
             if (!method_exists($this, $call)) {
-                $this->server->getConsole()->debug("第{%d}号信号未找到{%s}方法", $signal, $call);
+                $this->server->getConsole()->notice("进程{%s}未定义{%d}号信号的{%s}方法", $this->pidName, $signal, $call);
                 continue;
             }
             try {
                 // 2.2 执行回调
                 $this->{$call}($signal);
-                $this->server->getConsole()->debug("第{%d}号信号触发{%s}方法", $signal, $call);
+                $this->server->getConsole()->debug("进程{%s}触发了{%d}号信号的{%s}方法", $this->pidName, $signal, $call);
             } catch(\Throwable $e) {
                 // 2.3 执行失败
-                $this->server->getConsole()->error("第{%d}号信号触发{%s}方法 - %s", $signal, $call, $e->getMessage());
+                $this->server->getConsole()->error("进程{%s}触发了{%d}号信号的{%s}方法 - %s", $this->pidName, $signal, $call, $e->getMessage());
             }
         }
     }

@@ -196,22 +196,6 @@ class PidTable extends XTable
     }
 
     /**
-     * 读取全部进程列表
-     * @return array
-     */
-    public function toArray()
-    {
-        $res = [];
-        $datas = parent::toArray();
-        foreach ($datas as $data) {
-            $res[$data['pid']] = $data;
-        }
-        ksort($res);
-        reset($res);
-        return $res;
-    }
-
-    /**
      * 按类型过滤
      * @param array $types 类型列表
      * @return array

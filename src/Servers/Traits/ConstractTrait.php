@@ -244,10 +244,4 @@ trait ConstractTrait
         // 3. 启动服务
         parent::start();
     }
-
-    final public function tick($ms, $callable)
-    {
-        $this->console->debug("设置{%d}秒定时器", $ms / 1000);
-        parent::tick($ms, $callable);
-    }
 }

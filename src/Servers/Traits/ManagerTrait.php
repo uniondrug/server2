@@ -22,16 +22,18 @@ trait ManagerTrait
      */
     final public function onManagerRequest($request, $response)
     {
-        $this->console->info("收到Manager请求");
+        $uri = isset($request->server, $request->server['request_uri']) && is_string($request->server['request_uri']) ? $request->server['request_uri'] : null;
+        $this->console->info("收到Manager请求 - %s %s", $request->server['request_method'], $uri);
+        // 1. token
         if (!isset($request->header, $request->header['manager-token']) || $request->header['manager-token'] !== $this->managerToken) {
             $response->status(400);
             $response->end("HTTP 400 Bad Request");
             return;
         }
         /**
+         * 2. access
          * @var IManager $manager
          */
-        $uri = isset($request->server, $request->server['request_uri']) && is_string($request->server['request_uri']) ? $request->server['request_uri'] : null;
         if ($uri && preg_match("/([^\/]+)/", $uri, $m) > 0) {
             $class = "\\Uniondrug\\Server2\\Managers\\".ucfirst($m[1])."Manager";
             if (class_exists($class, true) && is_a($class, IManager::class, true)) {

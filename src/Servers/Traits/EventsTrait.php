@@ -67,7 +67,7 @@ trait EventsTrait
         $server->getPidTable()->addManager($server->manager_pid, $name);
         // 2. reset: pid name
         $server->setPidName($name);
-        $server->console->info("进程启动");
+        $server->console->info("进程{%s}启动", $name);
         // 3. do: manager start
         $server->doManagerStart($server);
     }
@@ -82,7 +82,7 @@ trait EventsTrait
         // 1. del: pid table
         $name = $server->genPidName('manager');
         $server->getPidTable()->del($server->manager_pid);
-        $server->console->warning("进程退出");
+        $server->console->warning("进程{%s}退出", $name);
         // 2. do: manager start
         $server->doManagerStop($server);
     }
@@ -178,7 +178,7 @@ trait EventsTrait
     {
         // 1. addto: pid table
         $server->getPidTable()->del($server->master_pid);
-        $server->console->warning("进程退出");
+        $server->console->warning("进程{%s}退出", $this->genPidName('master'));
         // 2. do: shutdown
         $server->doShutdown($server);
     }
@@ -198,7 +198,7 @@ trait EventsTrait
         $server->getPidTable()->addMaster($server->master_pid, $name);
         // 2. reset: pid name
         $server->setPidName($name);
-        $server->console->info("进程启动", $name);
+        $server->console->info("进程{%s}启动", $name);
         // 3. do: start
         $server->doStart($server);
     }
@@ -260,12 +260,12 @@ trait EventsTrait
         $this->taskworker ? $server->getPidTable()->addTasker($server->worker_pid, $name) : $server->getPidTable()->addWorker($server->worker_pid, $name);
         // 2. reset: pid name
         $server->setPidName($name);
-        $server->console->info("进程启动");
+        $server->console->info("进程{%s}启动", $name);
         // 3. 在Worker/Tasker进程中检查Manager进程是否已退出
         //    若Manager进程已退出, 则退出当前进程
         swoole_timer_tick(3000, function() use ($server, $name){
             if (false === swoole_process::kill($server->getManagerPid(), 0)) {
-                $server->console->warning("进程被回收");
+                $server->console->warning("进程{%s}被回收", $name);
                 swoole_process::kill($server->getWorkerPid(), SIGTERM);
             }
         });
@@ -283,7 +283,7 @@ trait EventsTrait
     {
         // 1. del: pid table
         $server->getPidTable()->del($server->worker_pid);
-        $server->console->warning("进程退出");
+        $server->console->warning("进程{%s}退出", $this->genPidName($this->taskworker ? 'tasker' : 'worker', $workerId));
         // 2. do: workerStop
         $server->doWorkerStop($server);
     }

@@ -31,7 +31,7 @@ class PidProcess extends XProcess
         foreach ($ps as $p) {
             $alive = parent::kill($p['pid'], 0);
             if ($alive === false) {
-                $this->server->getConsole()->warning("清除{%d}已退出进程{%s}", $p['pid'], $p['name']);
+                $this->server->getConsole()->warning("清除{%d}号已退出进程{%s}", $p['pid'], $p['name']);
                 $this->server->getPidTable()->del($p['pid']);
             }
         }

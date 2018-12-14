@@ -24,6 +24,7 @@ trait DoTrait
     }
 
     /**
+     * Manager进程启动回调
      * @param IHttp|ISocket $server
      */
     public function doManagerStart($server)
@@ -31,6 +32,7 @@ trait DoTrait
     }
 
     /**
+     * Manager进程退出回调
      * @param IHttp|ISocket $server
      */
     public function doManagerStop($server)
@@ -38,6 +40,7 @@ trait DoTrait
     }
 
     /**
+     * 收到Message消息
      * @param ISocket     $server
      * @param SwooleFrame $frame
      */
@@ -57,6 +60,7 @@ trait DoTrait
     }
 
     /**
+     * Master进程退出回调
      * @param IHttp|ISocket $server
      */
     public function doShutdown($server)
@@ -64,6 +68,7 @@ trait DoTrait
     }
 
     /**
+     * Master进程启动回调
      * @param IHttp|ISocket $server
      */
     public function doStart($server)
@@ -71,6 +76,7 @@ trait DoTrait
     }
 
     /**
+     * 执行Task任务
      * @param IHttp|ISocket $server
      * @param int           $taskId
      * @param string        $data
@@ -108,15 +114,18 @@ trait DoTrait
     }
 
     /**
+     * Worker进程错误回调
      * @param IHttp|ISocket $server
      * @param int           $errno
      * @param int           $signal
      */
     public function doWorkerError($server, int $errno, int $signal)
     {
+        $server->getConsole()->error("Worker进程意外退出{errno=%d}/{signal=%d}", $errno, $signal);
     }
 
     /**
+     * Worker进程启动回调
      * @param IHttp|ISocket $server
      */
     public function doWorkerStart($server)
@@ -124,6 +133,7 @@ trait DoTrait
     }
 
     /**
+     * Worker进程退出回调
      * @param IHttp|ISocket $server
      */
     public function doWorkerStop($server)

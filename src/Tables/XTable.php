@@ -7,11 +7,35 @@ namespace Uniondrug\Server2\Tables;
 
 use Swoole\Table as SwooleTable;
 
+/**
+ * 内存表基类
+ * @package Uniondrug\Server2\Tables
+ */
 abstract class XTable extends SwooleTable implements ITable
 {
+    /**
+     * 内存表列定义
+     * <code>
+     * $columns = [
+     *     'name' => [
+     *         parent::TYPE_INT,
+     *         4
+     *     ]
+     * ]
+     * </code>
+     * @var array
+     */
     protected $columns = [];
+    /**
+     * 内存表命名
+     * @var string
+     */
     protected $name;
 
+    /**
+     * XTable constructor.
+     * @param int $size 内存表最大空间
+     */
     public function __construct($size)
     {
         parent::__construct($size);
@@ -21,6 +45,12 @@ abstract class XTable extends SwooleTable implements ITable
         $this->create();
     }
 
+    /**
+     * 内存表命名
+     * 本方法可以子类中覆盖, 重新自定义名称, 当未定义时
+     * 则通过计算类名的方式, 生成名称
+     * @return string
+     */
     public function getName()
     {
         if ($this->name === null) {

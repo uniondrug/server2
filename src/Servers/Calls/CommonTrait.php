@@ -59,6 +59,10 @@ trait CommonTrait
         return false;
     }
 
+    /**
+     * 读取全部内存表
+     * @return array
+     */
     public function getTables()
     {
         return $this->initedTables;
@@ -131,12 +135,12 @@ trait CommonTrait
         try {
             $taskId = $this->task($data, -1);
             if ($taskId === false) {
-                throw new \Exception("调用task()方法失败");
+                throw new \Exception("return false for task()");
             }
-            $this->getConsole()->debug("[task=%d]任务提交完成", $taskId);
+            $this->getConsole()->debug("[task=%d]Worker触发Task", $taskId);
             return true;
         } catch(\Throwable $e) {
-            $this->getConsole()->error("任务提交失败 - %s", $e->getMessage());
+            $this->getConsole()->error("Worker触发Task失败 - %s", $e->getMessage());
             return $this->runTaskNotWorker($data);
         }
     }
@@ -148,7 +152,19 @@ trait CommonTrait
      */
     private function runTaskNotWorker(string & $data)
     {
-        $this->getConsole()->debug("通过PIPE管理消息转发任务");
+        $this->getConsole()->debug("PIPE转发TASK");
         return $this->sendMessage($data, 0);
+    }
+
+    /**
+     * 设置定时器
+     * @param int      $ms       毫秒数
+     * @param callable $callable 回调方法
+     */
+    final public function tick($ms, $callable)
+    {
+        $text = sprintf("设置{%d}秒定时器 - %s", sprintf("%.02f", $ms / 1000), gettype($callable));
+        $this->getConsole()->debug($text);
+        parent::tick($ms, $callable);
     }
 }
