@@ -70,6 +70,7 @@ abstract class XProcess extends SwooleProcess implements IProcess
      */
     final public function runProcess()
     {
+        $this->server->getConsole()->setServer($this->server);
         $this->server->getConsole()->setPrefix("[{$this->server->getBuilder()->getAddr()}][pid={$this->pid}][process]");
         $this->beforeRun();
         // 1. 计算进程名称

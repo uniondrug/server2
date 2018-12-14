@@ -47,6 +47,7 @@ trait ConstractTrait
      * 构造Http/WebSocket服务
      * @param Console $console
      * @param Builder $builder
+     * @throws \Exception
      */
     public function __construct(Console $console, Builder $builder)
     {

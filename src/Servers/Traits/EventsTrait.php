@@ -60,6 +60,7 @@ trait EventsTrait
      */
     final public function onManagerStart($server)
     {
+        $server->console->setServer($server);
         $server->console->setPrefix("[{$server->builder->getAddr()}][pid={$server->manager_pid}][manager]");
         // 1. addto: pid table
         $name = $server->genPidName('manager');
@@ -153,7 +154,7 @@ trait EventsTrait
         $request->requestId = $uniqid;
         // HTTP请求日志
         $enableHttpAccessLogger = $this->builder->getOption("enableHttpAccessLogger") === true;
-        if ($enableHttpAccessLogger){
+        if ($enableHttpAccessLogger) {
             $begin = microtime(true);
             $this->defer(function() use ($request, $response, $begin){
                 $this->httpAccessLogger($this, $request, $response, $begin);
@@ -190,6 +191,7 @@ trait EventsTrait
      */
     final public function onStart($server)
     {
+        $server->console->setServer($server);
         $server->console->setPrefix("[{$server->builder->getAddr()}][pid={$server->master_pid}][master]");
         // 1. addto: pid table
         $name = $server->genPidName('master');
@@ -252,6 +254,7 @@ trait EventsTrait
     {
         // 1. addto: pid table
         $type = $this->taskworker ? 'tasker' : 'worker';
+        $server->console->setServer($server);
         $server->console->setPrefix("[{$server->builder->getAddr()}][pid={$server->getWorkerPid()}][{$type}={$server->getWorkerId()}]");
         $name = $server->genPidName($type, $workerId);
         $this->taskworker ? $server->getPidTable()->addTasker($server->worker_pid, $name) : $server->getPidTable()->addWorker($server->worker_pid, $name);
