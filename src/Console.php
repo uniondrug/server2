@@ -139,33 +139,36 @@ class Console
         }
         $contents .= $buffer;
         // 2. 写入Logger文件
-        if ($this->server !== null && method_exists($this->server, 'getLoggerx')) {
+        if ($this->server !== null && method_exists($this->server, 'getLogger')) {
             /**
              * @var AdapterInterface $logger
              */
-            $logger = $this->server->getLogger();
-            if ($logger instanceof AdapterInterface) {
-                switch ($level) {
-                    case self::LEVEL_INFO :
-                        $logger->info($contents);
-                        break;
-                    case self::LEVEL_DEBUG :
-                        $logger->debug($contents);
-                        break;
-                    case self::LEVEL_ERROR :
-                        $logger->error($contents);
-                        break;
-                    case self::LEVEL_WARNING :
-                        $logger->warning($contents);
-                        break;
-                    case self::LEVEL_NOTICE :
-                        $logger->notice($contents);
-                        break;
-                    default :
-                        $logger->log(0, $contents);
-                        break;
+            try {
+                $logger = $this->server->getLogger();
+                if ($logger instanceof AdapterInterface) {
+                    switch ($level) {
+                        case self::LEVEL_INFO :
+                            $logger->info($contents);
+                            break;
+                        case self::LEVEL_DEBUG :
+                            $logger->debug($contents);
+                            break;
+                        case self::LEVEL_ERROR :
+                            $logger->error($contents);
+                            break;
+                        case self::LEVEL_WARNING :
+                            $logger->warning($contents);
+                            break;
+                        case self::LEVEL_NOTICE :
+                            $logger->notice($contents);
+                            break;
+                        default :
+                            $logger->log(0, $contents);
+                            break;
+                    }
+                    return;
                 }
-                return;
+            } catch(\Throwable $e) {
             }
         }
         // 3. 控制台输出

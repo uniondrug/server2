@@ -24,5 +24,6 @@ abstract class Process extends XProcess
     public function beforeRun()
     {
         parent::beforeRun();
+        $this->server->setFramework();
     }
 }
