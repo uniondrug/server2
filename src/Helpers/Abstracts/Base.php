@@ -36,16 +36,15 @@ abstract class Base
         $this->beforeRun();
         // 1. current command
         $cmd = $this->helper->getCommand();
-        $cmd || $cmd = 'COMMAND';
+        $cmd || $cmd = '命令';
         // 2. current options
-        $opt = '[OPTIONS]';
+        $opt = '[选项]';
         // 3. information
-        //        $this->println("环境 - %s", $this->builder->getEnvironment());
-        //        $this->println("项目 - %s/%s", $this->builder->getAppName(), $this->builder->getAppVersion());
-        //        $this->println("地址 - %s", $this->builder->getAddr());
-        //        $this->println("用法 - %s %s %s", $this->helper->getScript(), $cmd, $opt);
-        //$this->println("Path     : %s", $this->builder->getBasePath());
-        //$this->println("Manager  : %s", $this->builder->getManagerAddr());
+        $this->println("环境 - %s", $this->builder->getEnvironment());
+        $this->println("项目 - %s/%s", $this->builder->getAppName(), $this->builder->getAppVersion());
+        $this->println("路径 - %s", $this->builder->getBasePath());
+        $this->println("地址 - %s", $this->builder->getAddr());
+        $this->println("用法 - %s %s %s", $this->helper->getScript(), $cmd, $opt);
     }
 
     protected function beforeRun()
