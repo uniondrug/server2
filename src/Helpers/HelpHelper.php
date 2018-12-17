@@ -54,6 +54,8 @@ class HelpHelper extends Abstracts\Base implements IHelper
             }
         }
         $path->close();
+        ksort($data);
+        reset($data);
         return $data;
     }
 }
