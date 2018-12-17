@@ -45,8 +45,9 @@ class HelpHelper extends Abstracts\Base implements IHelper
                  */
                 $class = "\\Uniondrug\\Server2\\Helpers\\{$m[1]}Helper";
                 if (is_a($class, IHelper::class, true) && class_exists($class)) {
-                    $data[] = [
-                        'name' => lcfirst($m[1]),
+                    $key = lcfirst($m[1]);
+                    $data[$key] = [
+                        'name' => $key,
                         'desc' => $class::desc()
                     ];
                 }
