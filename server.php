@@ -9,9 +9,8 @@ use Uniondrug\Server2\Helper;
 
 error_reporting(E_ALL);
 date_default_timezone_set("Asia/Shanghai");
-
 // composer
-$basePath = getcwd();
+$basePath = __DIR__.'/../../../';
 $vendorFile = $basePath."/vendor/autoload.php";
 if (file_exists($vendorFile)) {
     include($vendorFile);
@@ -46,5 +45,3 @@ set_error_handler(function($errno, $error, $file, $line) use ($console){
 $helper = new Helper();
 $builder = Builder::withBasePath($helper, $basePath);
 Helper::run($console, $helper, $builder);
-//echo $basePath."\n";
-//echo $helper->getScript()."\n";

@@ -225,14 +225,11 @@ class Builder
 
     /**
      * 记录启动参数的文件
-     * @return false|string
+     * @return string
      */
     public function getManagerFile()
     {
-        if (isset($this->settings['pid_file'])) {
-            return preg_replace("/\.([a-z0-9]+)$/", ".env", $this->settings['pid_file']);
-        }
-        return false;
+        return getcwd().'/tmp/server.env';
     }
 
     /**
