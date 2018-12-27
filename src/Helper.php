@@ -165,8 +165,8 @@ class Helper
         }
         // 2. 拼接Args
         $lastKey = null;
-        $rexpKey = "/[\-]+([^=]+)/";
-        $rexpValue = "/[\-]+([^=]+)[\s|=]+(.+)/";
+        $rexpKey = "/^[\-]+([^=]+)/";
+        $rexpValue = "/^[\-]+([^=]+)[\s|=]+(.+)/";
         foreach ($args as $i => $arg) {
             if (preg_match($rexpValue, $arg, $m) > 0) {
                 $this->setOption($m[1], $m[2]);
